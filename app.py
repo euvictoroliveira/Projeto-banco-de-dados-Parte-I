@@ -1,29 +1,21 @@
-import psycopg2
+#
+# Arquivo principal, responsável por tratar a rota principal '/' e declarar as blueprints das outras rotas
+#
 
-# 1. Conectar ao banco de dados
-conexao = psycopg2.connect(
-    dbname="projeto_hospital",
-    user="postgres",
-    password="",
-    host="localhost"
-)
-cursor = conexao.cursor()
+from flask import Flask, render_template
+from routes.atendimento import atendimento_bp
 
-# 2. Escrever a consulta em SQL Puro
-# Exemplo do projeto: Listar todos os atendimentos de um paciente específico
-consulta_sql = """
-    SELECT * FROM atendimento;
-"""
-id_do_paciente = (1,) # Tupla com o ID que você quer buscar
+app = Flask(__name__)
 
-# 3. Executar e buscar os resultados
-cursor.execute(consulta_sql, id_do_paciente)
-atendimentos = cursor.fetchall()
+#
+# Blueprints para outras rotas
+#
+app.register_blueprint(atendimento_bp)
 
-# 4. Mostrar os resultados no terminal
-for atendimento in atendimentos:
-    print(f"Data: {atendimento[0]}, Duração: {atendimento[1]} min")
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-# 5. Fechar a conexão
-cursor.close()
-conexao.close()
+
+if __name__ == '__main__':
+    app.run(debug=True)

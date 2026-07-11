@@ -14,24 +14,35 @@
 
     <h1>Gestão Hospitalar - Dra. Yuska</h1>
     
-    <h2>Lista de Pessoas Cadastradas</h2>
+    <h2>Atendimentos</h2>
+
     <table>
         <tr>
             <th>ID</th>
-            <th>Nome</th>
-            <th>Telefone</th>
+            <th>Hora</th>
+            <th>Duração</th>
+            <th>id_paciente</th>
+            <th>id_residente</th>
+            <th>id_preceptor</th>
         </tr>
-        {% for pessoa in lista_pessoas %}
+
+        {% for atendimento in lista_atendimentos %}
         <tr>
-            <td>{{ pessoa[0] }}</td>
-            <td>{{ pessoa[1] }}</td>
-            <td>{{ pessoa[2] }}</td>
+            <td>{{ atendimento[0] }}</td>
+            <td>{{ atendimento[1] }}</td>
+            <td>{{ atendimento[2] }}</td>
+            <td>{{ atendimento[3] }}</td>
+            <td>{{ atendimento[4] }}</td>
+            <td>{{ atendimento[5] }}</td>
         </tr>
+
         {% else %}
         <tr>
-            <td colspan="3">Nenhuma pessoa encontrada no banco.</td>
+            <td colspan="3">Nenhum atendimento encontrado.</td>
+
         </tr>
         {% endfor %}
+        
     </table>
 
 </body>
