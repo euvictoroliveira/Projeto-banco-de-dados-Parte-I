@@ -2,17 +2,110 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Hospital Dra. Yuska</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Dra. Yuska - Início</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        table { border-collapse: collapse; width: 50%; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f5f7fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .menu-container { 
+            max-width: 800px; 
+            width: 100%;
+            background: white; 
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+            text-align: center;
+        }
+        h1 { 
+            color: #2c3e50; 
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        p.subtitulo {
+            color: #7f8c8d;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+        
+        /* Grade de Botões (Menu) */
+        .grid-menu { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 20px; 
+        }
+        
+        /* Estilo dos Botões do Menu */
+        .card-botao { 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px; 
+            background: #ffffff; 
+            border: 2px solid #e0e0e0;
+            border-radius: 8px; 
+            text-decoration: none; 
+            color: #34495e; 
+            font-size: 18px;
+            font-weight: bold; 
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        
+        /* Efeitos ao passar o mouse nos botões */
+        .card-botao:hover { 
+            border-color: #3498db;
+            background-color: #3498db;
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.2);
+        }
+        
+        /* Ícones decorativos simulados por texto simples */
+        .card-botao span.icone {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Gestão Hospitalar - Dra. Yuska</h1>
+<div class="menu-container">
+    <h1>Hospital Dra. Yuska</h1>
+    <p class="subtitulo">Sistema de Gestão Hospitalar - Escolha uma operação no menu abaixo</p>
+    
+    <div class="grid-menu">
+        
+        <a href="atendimento.html" class="card-botao">
+            <span class="icone">📋</span>
+            Listar Pacientes e Atendimentos
+        </a>
+        
+        <a href="/novo_atendimento" class="card-botao">
+            <span class="icone">➕</span>
+            Inserir Novo Atendimento
+        </a>
+        
+        <a href="/atualizar_paciente" class="card-botao">
+            <span class="icone">🔄</span>
+            Atualizar Dados de Paciente
+        </a>
+        
+        <a href="/remover_procedimento" class="card-botao">
+            <span class="icone">❌</span>
+            Remover Procedimento Realizado
+        </a>
+        
+    </div>
+</div>
 
 </body>
 </html>

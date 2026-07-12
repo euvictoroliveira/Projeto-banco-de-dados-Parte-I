@@ -2,28 +2,45 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Hospital Dra. Yuska</title>
+    <meta bane-"viewport" content = "width=device-witdh, initial-scale=1.0">
+    <title>Hospital Dra. Yuska - atendimentos</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        table { border-collapse: collapse; width: 50%; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 40px; background-color: #f5f7fb; color: #333; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);}
+        h1 {color: #2c3e50; border-bottom: 2px solid#3498db; padding-bottom: 10px;}
+        table {border-collapse: collapse; width: 100%; margin-top: 20px; background: #fff;}
+        th, td {border: 1px solid #e0e0e0; padding: 12px; text-align: left;}
+        th {background-color: #34495e; color: white;}
+        tr:nth-child(even) {background-color: #f9f9f9;}
+        .btn-voltar {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            background-color: #7f8c8d;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .btn-voltar:hover { background-color: #95a5a6; }
     </style>
 </head>
 <body>
 
+<div class="container">
+    <a href="/" class="btn-voltar">⬅ Voltar ao Menu</a>
+
     <h1>Gestão Hospitalar - Dra. Yuska</h1>
-    
-    <h2>Atendimentos</h2>
+    <h2>Atendimentos Registrados</h2>
 
     <table>
         <tr>
             <th>ID</th>
-            <th>Hora</th>
-            <th>Duração</th>
-            <th>id_paciente</th>
-            <th>id_residente</th>
-            <th>id_preceptor</th>
+            <th>Hora/Data</th>
+            <th>Duração (min)</th>
+            <th>ID Paciente</th>
+            <th>ID Residente</th>
+            <th>ID Preceptor</th>
         </tr>
 
         {% for atendimento in lista_atendimentos %}
@@ -35,15 +52,9 @@
             <td>{{ atendimento[4] }}</td>
             <td>{{ atendimento[5] }}</td>
         </tr>
-
         {% else %}
         <tr>
-            <td colspan="3">Nenhum atendimento encontrado.</td>
-
+            <td colspan="6" style="text-align: center; color: #7f8c8d;">Nenhum atendimento encontrado.</td>
         </tr>
         {% endfor %}
-        
     </table>
-
-</body>
-</html>
