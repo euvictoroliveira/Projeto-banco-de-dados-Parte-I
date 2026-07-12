@@ -20,4 +20,3 @@ def atendimento():
         cursor.close()
 
         return render_template("atendimento.html", lista_atendimentos=atendimentos)
-        

@@ -16,9 +16,5 @@ app.register_blueprint(atendimento_bp)
 def index():
     return render_template('index.html')
 
-@app.route('/atendimento')
-def atendimento():
-    return render_template('atendimento.html')
-
 if __name__ == '__main__':
     app.run(debug=True)
