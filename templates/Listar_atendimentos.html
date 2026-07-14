@@ -1,0 +1,245 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Dra. Yuska - Listagem de Atendimentos</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 40px; background-color: #f5f7fb; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; border-bottom: 2px solid #e74c3c; padding-bottom: 10px; margin-top: 0; }
+        
+       
+        .secao-filtro { 
+            background: #eef2f7; 
+            padding: 15px 20px; 
+            border-radius: 6px; 
+            margin-bottom: 25px;
+            border: 1px solid #d2d9e4;
+        }
+        .grid-filtro { display: grid; grid-template-columns: 1fr 1.5fr 1.5fr; gap: 15px; align-items: flex-end; }
+        
+        .form-group { margin-bottom: 0; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; color: #34495e; font-size: 0.9rem; }
+        select { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 0.95rem; }
+        
+       
+        .tabela-container { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; background: white; text-align: left; margin-bottom: 30px; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; }
+        th { background-color: #34495e; color: white; font-weight: 600; }
+        
+      
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; display: inline-block; }
+        .badge-paciente { background-color: #e3f2fd; color: #0d47a1; }
+        .badge-residente { background-color: #e8f5e9; color: #1b5e20; }
+        .badge-preceptor { background-color: #fff3e0; color: #e65100; }
+        
+        
+        .sub-tabela { width: 100%; background-color: #f8fafc; border-radius: 4px; border: 1px solid #cbd5e1; margin: 5px 0; }
+        .sub-tabela th { background-color: #64748b; font-size: 0.85rem; padding: 6px 10px; }
+        .sub-tabela td { padding: 8px 10px; font-size: 0.85rem; border-bottom: 1px solid #e2e8f0; }
+
+        .btn-excluir { 
+            background-color: #e74c3c; 
+            color: white; 
+            border: none; 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        .btn-excluir:hover { background-color: #c0392b; }
+        
+        .btn-voltar { 
+            display: inline-block; 
+            padding: 10px 20px; 
+            background-color: #7f8c8d; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 4px; 
+            font-weight: bold; 
+        }
+        .btn-voltar:hover { background-color: #95a5a6; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Controle Geral de Atendimentos e Procedimentos</h1>
+    
+    <div class="secao-filtro">
+        <div class="grid-filtro">
+            <div class="form-group">
+                <label for="filtro_tipo">Filtrar por:</label>
+                <select id="filtro_tipo" onchange="alternarFiltroOpcoes()">
+                    <option value="todos">Mostrar Todos</option>
+                    <option value="paciente">Paciente</option>
+                    <option value="medico">Médico (Residente ou Preceptor)</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="container_pacientes" style="display: none;">
+                <label for="filtro_paciente">Escolha o Paciente:</label>
+                <select id="filtro_paciente" onchange="filtrarTabela()">
+                    <option value="todos">Todos os Pacientes</option>
+                    <option value="ID: 1">João Silva (ID: 1)</option>
+                    <option value="ID: 2">Maria Oliveira (ID: 2)</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="container_medicos" style="display: none;">
+                <label for="filtro_medico">Escolha o Médico:</label>
+                <select id="filtro_medico" onchange="filtrarTabela()">
+                    <option value="todos">Todos os Médicos</option>
+                    <option value="ID: 10">Dr. Lucas (ID: 10)</option>
+                    <option value="ID: 11">Dra. Juliana (ID: 11)</option>
+                    <option value="ID: 50">Dra. Amanda (ID: 50)</option>
+                    <option value="ID: 51">Dr. Ricardo (ID: 51)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabela-container">
+        <table id="tabela_atendimentos">
+            <thead>
+                <tr>
+                    <th>Data/Hora</th>
+                    <th>Paciente</th>
+                    <th>Residente</th>
+                    <th>Preceptor</th>
+                    <th>Procedimentos Realizados neste Atendimento</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="linha-atendimento" data-paciente="ID: 1" data-residente="ID: 10" data-preceptor="ID: 50">
+                    <td><strong>13/07/2026 10:30</strong></td>
+                    <td><span class="badge badge-paciente">João Silva (ID: 1)</span></td>
+                    <td><span class="badge badge-residente">Dr. Lucas (ID: 10)</span></td>
+                    <td><span class="badge badge-preceptor">Dra. Amanda (ID: 50)</span></td>
+                    <td>
+                        <table class="sub-tabela">
+                            <thead>
+                                <tr>
+                                    <th>Procedimento</th>
+                                    <th>Qtd</th>
+                                    <th>Tempo</th>
+                                    <th>Intercorrência</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Sutura Simples (Cód: 001)</td>
+                                    <td>1</td>
+                                    <td>15 min</td>
+                                    <td>Nenhuma.</td>
+                                    <td>
+                                        <form action="/remover_procedimento/1" method="POST" onsubmit="return confirm('Excluir este procedimento do atendimento?');">
+                                            <button type="submit" class="btn-excluir">❌ Remover</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+
+                <tr class="linha-atendimento" data-paciente="ID: 2" data-residente="ID: 11" data-preceptor="ID: 51">
+                    <td><strong>13/07/2026 11:15</strong></td>
+                    <td><span class="badge badge-paciente">Maria Oliveira (ID: 2)</span></td>
+                    <td><span class="badge badge-residente">Dra. Juliana (ID: 11)</span></td>
+                    <td><span class="badge badge-preceptor">Dr. Ricardo (ID: 51)</span></td>
+                    <td>
+                        <table class="sub-tabela">
+                            <thead>
+                                <tr>
+                                    <th>Procedimento</th>
+                                    <th>Qtd</th>
+                                    <th>Tempo</th>
+                                    <th>Intercorrência</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Coleta de Sangue (Cód: 002)</td>
+                                    <td>2</td>
+                                    <td>20 min</td>
+                                    <td>Paciente apresentou leve tontura.</td>
+                                    <td>
+                                        <form action="/remover_procedimento/2" method="POST" onsubmit="return confirm('Excluir este procedimento do atendimento?');">
+                                            <button type="submit" class="btn-excluir">❌ Remover</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <a href="/" class="btn-voltar">Voltar ao Menu</a>
+</div>
+
+<script>
+    function alternarFiltroOpcoes() {
+        const tipo = document.getElementById("filtro_tipo").value;
+        const containerPacientes = document.getElementById("container_pacientes");
+        const containerMedicos = document.getElementById("container_medicos");
+
+        if (tipo === "paciente") {
+            containerPacientes.style.display = "block";
+            containerMedicos.style.display = "none";
+        } else if (tipo === "medico") {
+            containerPacientes.style.display = "none";
+            containerMedicos.style.display = "block";
+        } else {
+            containerPacientes.style.display = "none";
+            containerMedicos.style.display = "none";
+            mostrarTodasAsLinhas();
+        }
+    }
+
+    function filtrarTabela() {
+        const tipo = document.getElementById("filtro_tipo").value;
+        const linhas = document.querySelectorAll(".linha-atendimento");
+
+        if (tipo === "paciente") {
+            const pacienteSelecionado = document.getElementById("filtro_paciente").value;
+            linhas.forEach(linha => {
+                if (pacienteSelecionado === "todos" || linha.getAttribute("data-paciente") === pacienteSelecionado) {
+                    linha.style.display = "";
+                } else {
+                    linha.style.display = "none";
+                }
+            });
+        } else if (tipo === "medico") {
+            const medicoSelecionado = document.getElementById("filtro_medico").value;
+            linhas.forEach(linha => {
+                if (medicoSelecionado === "todos" || 
+                    linha.getAttribute("data-residente") === medicoSelecionado || 
+                    linha.getAttribute("data-preceptor") === medicoSelecionado) {
+                    linha.style.display = "";
+                } else {
+                    linha.style.display = "none";
+                }
+            });
+        }
+    }
+
+    function mostrarTodasAsLinhas() {
+        const linhas = document.querySelectorAll(".linha-atendimento");
+        linhas.forEach(linha => linha.style.display = "");
+        document.getElementById("filtro_paciente").value = "todos";
+        document.getElementById("filtro_medico").value = "todos";
+    }
+</script>
+
+</body>
+</html>
