@@ -3,6 +3,7 @@ from include.verify import validar_cpf
 import database
 
 atualizar_paciente_bp = Blueprint("atualizar_paciente", __name__)
+listar_pacientes_sem_alto_bp = Blueprint("listar_pacientes_sem_alto", __name__)
 
 # Método para atualizar endereço ou convênio de um paciente
 @atualizar_paciente_bp.route('/atualizar_paciente', methods=['GET', 'POST'])
@@ -132,7 +133,42 @@ def atualizar_paciente():
 
             cursor.close()
 
-        return render_template(
-            "atualizar_paciente.html",
-            feedback=mensagem
+        return render_template("atualizar_paciente.html", feedback=mensagem)
+
+# Lista pacientes que nunca realizaram procedimento de risco ALTO
+@listar_pacientes_sem_alto_bp.route('/pacientes_sem_alto', methods=['GET'])
+def listar_pacientes_sem_alto():
+
+    cursor = database.conexao.cursor()
+
+    consulta = """
+        SELECT
+            p.nome,
+            p.cpf
+        FROM pessoa p
+        INNER JOIN paciente pa
+            ON pa.id_pessoa = p.id_pessoa
+        WHERE NOT EXISTS (
+
+            SELECT 1
+            FROM atendimento a
+            INNER JOIN procedimento_realizado pr
+                ON pr.id_atendimento = a.id_atendimento
+            INNER JOIN procedimento proc
+                ON proc.id_procedimento = pr.id_procedimento
+
+            WHERE a.id_paciente = pa.id_pessoa
+              AND proc.nivel_risco = 'ALTO'
+              AND pr.is_removido = FALSE
+
         )
+        ORDER BY p.nome;
+    """
+
+    cursor.execute(consulta)
+
+    pacientes = cursor.fetchall()
+
+    cursor.close()
+
+    return render_template("pacientes_sem_alto.html",pacientes=pacientes)

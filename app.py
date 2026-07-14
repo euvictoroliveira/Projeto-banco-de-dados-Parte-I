@@ -7,7 +7,7 @@ from routes.atendimento import listar_atendimentos_bp, novo_atendimento_bp, list
 
 from routes.estatisticas import estatisticas_bp
 
-from routes.paciente import atualizar_paciente_bp
+from routes.paciente import atualizar_paciente_bp, listar_pacientes_sem_alto_bp
 
 app = Flask(__name__)
 
@@ -18,7 +18,7 @@ app.register_blueprint(listar_atendimentos_bp)
 app.register_blueprint(novo_atendimento_bp)
 app.register_blueprint(listar_procedimentos_bp)
 app.register_blueprint(atualizar_paciente_bp)
-
+app.register_blueprint(listar_pacientes_sem_alto_bp)
 app.register_blueprint(estatisticas_bp)
 
 @app.route('/')
