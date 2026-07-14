@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta bane-"viewport" content = "width=device-witdh, initial-scale=1.0">
+    <title>Hospital Dra. Yuska - atendimentos</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif;
+         margin: 40px; 
+         background-color: #f5f7fb; 
+         color: #333; 
+        }
+        .container { max-width: 900px; 
+            margin: 0 auto; 
+            margin-top: 20px;
+            background: white; 
+            padding: 30px;
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {color: #2c3e50; 
+            border-bottom: 2px solid#3498db; 
+            padding-bottom: 10px;
+        }
+        table {border-collapse: collapse; 
+            width: 100%; 
+            margin-top: 20px; 
+            background: #fff;
+        }
+        th, td {border: 1px solid #e0e0e0; 
+            padding: 12px; 
+            text-align: left;
+        }
+        th {background-color: #34495e; 
+            color: white;
+        }
+        tr:nth-child(even) {background-color: #f9f9f9;}
+        .btn-voltar {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            background-color: #7f8c8d;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .btn-voltar:hover { background-color: #95a5a6;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="/" class="btn-voltar">⬅ Voltar ao Menu</a>
+
+    <h1>Gestão Hospitalar - Dra. Yuska</h1>
+    <h2>Estatísticas</h2>
+
+    <div class="container">
+
+    <h2>Ranking de atendimentos de residentes</h2>
+    <table>
+        <tr>
+            <th>Nome</th>
+            <th>Quantidade</th>
+        </tr>
+
+        {% for linha in ranking_residentes %}
+        <tr>
+            <td>{{ linha[0] }}</td>
+            <td>{{ linha[1] }}</td>
+
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="6" style="text-align: center; color: #7f8c8d;">Nenhum registro encontrado.</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    </div>
+
+    <div class="container">
+
+    <h2>Exemplo: Preceptores com mais de 5 atendimentos</h2>
+    <table>
+        <tr>
+            <th>Nome</th>
+        </tr>
+
+        <tr>
+            <td colspan="6" style="text-align: center; color: #7f8c8d;">Nenhum registro encontrado.</td>
+        </tr>
+    </table>
+
+    </div>
+
+

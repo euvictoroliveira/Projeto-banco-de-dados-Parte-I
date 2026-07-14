@@ -240,18 +240,24 @@ INSERT INTO ATENDIMENTO (id_atendimento, data_hora, duracao_minutos, id_paciente
 (9, '2023-10-06 15:10:00', 25, 4, 10, 15),
 (10, '2023-10-07 18:00:00', 55, 5, 9, 14);
 
-INSERT INTO PROCEDIMENTO_REALIZADO (id_atendimento, id_procedimento, quantidade, tempo_real_minutos, observacao) VALUES
-(1, 5, 1, 35, 'Paciente colaborativo'),
-(1, 2, 1, 10, 'Acesso venoso difícil'),
-(2, 5, 1, 30, 'Sem intercorrências'),
-(3, 1, 2, 60, 'Sutura extensa no braço'),
-(4, 3, 1, 20, 'Aplicação de antibiótico'),
-(5, 4, 1, 90, 'Manobra com sucesso após 1h'),
-(6, 2, 2, 15, 'Duas amostras coletadas'),
-(7, 1, 1, 120, 'Cirurgia ambulatorial complexa'),
-(8, 5, 1, 40, 'Revisão de exames'),
-(9, 3, 1, 25, 'Medicação analgésica'),
-(10, 5, 1, 55, 'Paciente apresentou leve febre');
+INSERT INTO PROCEDIMENTO_REALIZADO (id_atendimento, id_procedimento, quantidade, tempo_real_minutos, observacao, is_faturado, is_removido) values
+
+-- Procedimentos normais (Ainda não faturados, não removidos)
+(1, 5, 1, 35, 'Paciente colaborativo', FALSE, FALSE),
+(2, 5, 1, 30, 'Sem intercorrências', FALSE, FALSE),
+(3, 1, 2, 60, 'Sutura extensa no braço', FALSE, FALSE),
+(6, 2, 2, 15, 'Duas amostras coletadas', FALSE, FALSE),
+(7, 1, 1, 120, 'Cirurgia ambulatorial complexa', FALSE, FALSE),
+(8, 5, 1, 40, 'Revisão de exames', FALSE, FALSE),
+(9, 3, 1, 25, 'Medicação analgésica', FALSE, FALSE),
+(10, 5, 1, 55, 'Paciente apresentou leve febre', FALSE, FALSE),
+
+-- Procedimento já faturado
+(1, 2, 1, 10, 'Acesso venoso difícil', TRUE, FALSE),
+(5, 4, 1, 90, 'Manobra com sucesso após 1h', TRUE, FALSE),
+
+-- Exclusão Lógica
+(4, 3, 1, 20, 'Aplicação de antibiótico inserida por engano', FALSE, TRUE);
 
 INSERT INTO ESCALA (id_escala, id_unidade, dia_semana, turno, id_residente, id_preceptor) VALUES
 (1, 1, 'Segunda', 'Manhã', 6, 11),
