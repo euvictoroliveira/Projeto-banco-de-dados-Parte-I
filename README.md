@@ -8,7 +8,7 @@ Projeto-banco-de-dados-Parte-I/
 ├── app.py                # Arquivo principal da aplicação Flask
 ├── database.py           # Configuração e conexão com o banco de dados
 ├── requirements.txt      # Dependências do projeto
-├── código.sql            # Script de criação e população do banco de dados
+├── init.sql            # Script de criação e população do banco de dados
 ├── README.md             # Este arquivo
 ├── templates/            # Pasta com os templates HTML
 │   ├── index.html        # Página inicial com menu principal
@@ -48,7 +48,7 @@ createdb -U postgres projeto_hospital
 
 4.2 Execute o script SQL para criar as tabelas e popular com dados
 ```bash
-psql -U postgres -d projeto_hospital < códigobd.sql
+psql -U postgres -d projeto_hospital < init.sql
 ```
 Em "Senha para o usuário postgres:" apenas confirme, não precisa inserir senha
 

@@ -1,6 +1,8 @@
 #
 # Arquivo responsável por armazenar a lógica de conexão com o banco de dados
 #
+
+
 import os
 import psycopg2
 
