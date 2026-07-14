@@ -4,10 +4,14 @@
 
 from flask import Blueprint, render_template, request
 import database
+import time
 
 listar_atendimentos_bp = Blueprint("listar_atendimentos", __name__)
+novo_atendimento_bp = Blueprint("novo_atendimento", __name__)
 
-@listar_atendimentos_bp.route('/listar_atendimentos', methods=['GET', 'POST'])
+
+
+@listar_atendimentos_bp.route('/listar_atendimentos', methods=['GET'])
 def listar_atendimento():
     if request.method == 'GET':
         paciente_cpf = request.args.get('cpf')
@@ -32,3 +36,68 @@ def listar_atendimento():
             cursor.close()
 
         return render_template("listar_atendimento.html", lista_atendimentos=atendimentos)
+
+
+
+@novo_atendimento_bp.route('/novo_atendimento', methods=['GET','POST'])
+def novo_atendimento():
+    
+    if request.method == 'GET':
+        return render_template("novo_atendimento.html")
+
+    else:
+        paciente_cpf = request.form.get('cpf')
+        preceptor_crm = request.form.get('preceptor')
+        residente_crm = request.form.get('residente')
+        duracao = request.form.get('duracao')
+        data_hora = time.strftime('%Y-%m-%d %H:%M:%S')
+
+        if paciente_cpf and preceptor_crm and residente_crm and duracao:
+            cursor = database.conexao.cursor()
+            
+            try:
+                
+                cursor.execute("SELECT id_pessoa FROM PESSOA WHERE cpf = %s", (paciente_cpf,))
+                resultado_paciente = cursor.fetchone()
+
+                cursor.execute("SELECT id_pessoa FROM PROFISSIONAL WHERE crm = %s", (preceptor_crm,))
+                resultado_preceptor = cursor.fetchone()
+
+                cursor.execute("SELECT id_pessoa FROM PROFISSIONAL WHERE crm = %s", (residente_crm,))
+                resultado_residente = cursor.fetchone()
+
+                if not resultado_paciente:
+                    mensagem_erro = "Erro: Paciente não encontrado."
+                elif not resultado_preceptor:
+                    mensagem_erro = "Erro: Preceptor não encontrado."
+                elif not resultado_residente:
+                    mensagem_erro = "Erro: Residente não encontrado."
+
+                else:
+
+                    id_pac = resultado_paciente[0]
+                    id_prec = resultado_preceptor[0]
+                    id_res = resultado_residente[0]
+
+                    consulta_insert = """
+                        INSERT INTO ATENDIMENTO 
+                        (data_hora, duracao_minutos, id_paciente, id_residente, id_preceptor) 
+                        VALUES (%s, %s, %s, %s, %s);
+                    """
+                    cursor.execute(consulta_insert, (data_hora, duracao, id_pac, id_res, id_prec))
+                    database.conexao.commit()
+                    
+                    mensagem_erro = "Atendimento registrado com sucesso!"
+
+            except Exception as e:
+                database.conexao.rollback()
+                mensagem_erro = f"Erro no banco: {e}"
+
+            finally:
+                cursor.close()
+
+        else:
+            mensagem_erro = "Preencha todos os campos."
+            
+        return render_template("novo_atendimento.html", feedback=mensagem_erro)
+        

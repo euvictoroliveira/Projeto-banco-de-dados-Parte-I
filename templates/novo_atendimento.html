@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta bane-"viewport" content = "width=device-witdh, initial-scale=1.0">
+    <title>Hospital Dra. Yuska - atendimentos</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif;
+         margin: 40px; 
+         background-color: #f5f7fb; 
+         color: #333; 
+        }
+        .container { max-width: 900px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {color: #2c3e50; 
+            border-bottom: 2px solid#3498db; 
+            padding-bottom: 10px;
+        }
+        table {border-collapse: collapse; 
+            width: 100%; 
+            margin-top: 20px; 
+            background: #fff;
+        }
+        th, td {border: 1px solid #e0e0e0; 
+            padding: 12px; 
+            text-align: left;
+        }
+        th {background-color: #34495e; 
+            color: white;
+        }
+        tr:nth-child(even) {background-color: #f9f9f9;}
+        .btn-voltar {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            background-color: #7f8c8d;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .btn-voltar:hover { background-color: #95a5a6;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="/" class="btn-voltar">⬅ Voltar ao Menu</a>
+
+    <h1>Gestão Hospitalar - Dra. Yuska</h1>
+    <h2>Novo atendimento</h2>
+
+    {% if feedback %}
+        {% if 'Erro' in feedback %}
+            <div class="alerta alerta-erro">
+                ⚠ {{ feedback }}
+            </div>
+        {% else %}
+            <div class="alerta alerta-sucesso">
+                ✔ {{ feedback }}
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <div style="background: #ecf0f1; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        
+        <form action="/novo_atendimento" method="POST">
+
+            <label for="cpf" style="font-weight: bold;">CPF paciente:</label>
+
+            <input type="text" id="cpf" name="cpf" placeholder="Digite apenas números" 
+                   value="{{ cpf_buscado if cpf_buscado else '' }}" 
+                   style="padding: 8px; border: 1px solid #bdc3c7; border-radius: 4px;">
+
+
+            <label for="duracao" style="font-weight: bold;">Duração:</label>
+
+            <input type="text" id="duracao" name="duracao" placeholder="Duração em minutos" 
+                   style="padding: 8px; border: 1px solid #bdc3c7; border-radius: 4px;">
+
+
+
+            <label for="preceptor" style="font-weight: bold;">Preceptor:</label>
+
+            <input type="text" id="preceptor" name="preceptor" placeholder="insira o CRM" 
+                   style="padding: 8px; border: 1px solid #bdc3c7; border-radius: 4px;">
+            
+
+
+            <label for="residente" style="font-weight: bold;">Residente:</label>
+
+            <input type="text" id="residente" name="residente" placeholder="insira o CRM" 
+                   style="padding: 8px; border: 1px solid #bdc3c7; border-radius: 4px;">
+
+
+            <button type="submit" style="padding: 8px 15px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">Enviar</button>
+
+        </form>
+    </div>
+
+

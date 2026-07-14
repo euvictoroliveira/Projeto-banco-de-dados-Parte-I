@@ -3,7 +3,7 @@
 #
 
 from flask import Flask, render_template
-from routes.atendimento import listar_atendimentos_bp
+from routes.atendimento import listar_atendimentos_bp, novo_atendimento_bp
 
 app = Flask(__name__)
 
@@ -11,6 +11,7 @@ app = Flask(__name__)
 # Blueprints para outras rotas
 #
 app.register_blueprint(listar_atendimentos_bp)
+app.register_blueprint(novo_atendimento_bp)
 
 @app.route('/')
 def index():
