@@ -9,6 +9,7 @@ import time
 
 listar_atendimentos_bp = Blueprint("listar_atendimentos", __name__)
 novo_atendimento_bp = Blueprint("novo_atendimento", __name__)
+listar_procedimentos_bp = Blueprint("listar_procedimentos", __name__)
 
 
 #
@@ -136,4 +137,56 @@ def novo_atendimento():
             mensagem_erro = "Preencha todos os campos."
             
         return render_template("novo_atendimento.html", feedback=mensagem_erro)
+
+
+#
+# Método para listar todos os procedimentos realizados em um atendimento
+#
+@listar_procedimentos_bp.route('/listar_procedimentos', methods=['GET'])
+def listar_procedimentos():
+
+    if request.method == 'GET':
+
+        # Variáveis
+        procedimentos = []
+        mensagem_erro = None
+
+        # Recebe o atributo id_atendimento enviado pela requisição
+        id_atendimento = request.args.get('id_atendimento')
+
+        # Verifica se o atributo existe
+        if not id_atendimento:
+            return render_template("listar_procedimentos.html")
+
+        # Realiza a validação do id (deve ser um número inteiro)
+        if not id_atendimento.isdigit():
+            mensagem_erro = "Erro: Nº de atendimento inválido"
+            return render_template("listar_procedimentos.html", feedback=mensagem_erro)
+
+        cursor = database.conexao.cursor()
+
+        # Confirma se o atendimento existe antes de consultar os procedimentos
+        cursor.execute("SELECT id_atendimento FROM ATENDIMENTO WHERE id_atendimento = %s", (id_atendimento,))
+        resultado_atendimento = cursor.fetchone()
+
+        if not resultado_atendimento:
+            mensagem_erro = "Erro: Atendimento não encontrado."
+            cursor.close()
+            return render_template("listar_procedimentos.html", feedback=mensagem_erro)
+
+        consulta = """
+            select p.codigo, p.nome, pr.quantidade, pr.tempo_real_minutos, pr.observacao, pr.is_faturado
+            from procedimento_realizado pr
+            inner join procedimento p on p.id_procedimento = pr.id_procedimento
+            where pr.id_atendimento = %s
+            and pr.is_removido = FALSE
+            order by p.nome
+        """
+
+        cursor.execute(consulta, (id_atendimento,))
+        procedimentos = cursor.fetchall()
+
+        cursor.close()
+
+        return render_template("listar_procedimentos.html", lista_procedimentos=procedimentos, feedback=mensagem_erro)
         

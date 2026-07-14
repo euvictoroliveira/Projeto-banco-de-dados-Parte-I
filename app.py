@@ -3,7 +3,7 @@
 #
 
 from flask import Flask, render_template
-from routes.atendimento import listar_atendimentos_bp, novo_atendimento_bp
+from routes.atendimento import listar_atendimentos_bp, novo_atendimento_bp, listar_procedimentos_bp
 
 from routes.estatisticas import estatisticas_bp
 
@@ -16,6 +16,7 @@ app = Flask(__name__)
 #
 app.register_blueprint(listar_atendimentos_bp)
 app.register_blueprint(novo_atendimento_bp)
+app.register_blueprint(listar_procedimentos_bp)
 app.register_blueprint(atualizar_paciente_bp)
 
 app.register_blueprint(estatisticas_bp)
