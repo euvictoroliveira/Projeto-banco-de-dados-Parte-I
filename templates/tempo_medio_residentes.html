@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Dra. Yuska - Estatísticas</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="pagina-interna">
+
+    <div class="container">
+
+        <a href="/" class="btn-voltar">⬅ Voltar ao Menu</a>
+
+        <h1>Gestão Hospitalar - Dra. Yuska</h1>
+
+        <h2>Tempo médio de duração dos atendimentos por residente</h2>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Residente</th>
+                    <th>Tempo Médio (min)</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% if residentes %}
+
+                    {% for residente in residentes %}
+
+                    <tr>
+                        <td>{{ residente[0] }}</td>
+                        <td>{{ residente[1] }}</td>
+                    </tr>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <tr>
+                        <td colspan="2" class="vazio">
+                            Nenhum atendimento encontrado.
+                        </td>
+                    </tr>
+
+                {% endif %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</body>
+</html>
