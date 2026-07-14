@@ -1,3 +1,4 @@
+-- Remove as tabelas existentes para evitar conflitos durante a criação
 DROP TABLE IF EXISTS procedimento_realizado CASCADE;
 DROP TABLE IF EXISTS escala CASCADE;
 DROP TABLE IF EXISTS atendimento CASCADE;
@@ -9,6 +10,8 @@ DROP TABLE IF EXISTS profissional CASCADE;
 DROP TABLE IF EXISTS paciente CASCADE;
 DROP TABLE IF EXISTS pessoa CASCADE;
 
+-- Cria a tabela pessoa
+-- Atributos: ID(chave primária), nome, cpf, data de nascimento, is_flamengo e telefone
 CREATE TABLE pessoa (
     id_pessoa INTEGER PRIMARY KEY NOT NULL,
     nome VARCHAR(100) NOT NULL,
@@ -18,6 +21,8 @@ CREATE TABLE pessoa (
     telefone VARCHAR(13)NOT NULL
 );
 
+-- Cria a tabela paciente
+-- atributos: ID(chave primária), número de convênio(chava candidata), alergias existentes e tipo sanguíneo
 CREATE TABLE paciente (
     id_pessoa INTEGER PRIMARY KEY NOT NULL,
     numero_convenio VARCHAR(20) NOT NULL UNIQUE,
@@ -25,6 +30,8 @@ CREATE TABLE paciente (
     tipo_sanguineo VARCHAR(3) NOT NULL
 );
 
+-- Cra a tabela profissiona
+-- atributos: ID(chave primária), CRM(Chave candidadta), data de admissão e especialidade
 CREATE TABLE profissional (
     id_pessoa INTEGER PRIMARY KEY NOT NULL,
     crm VARCHAR(20) NOT NULL UNIQUE,
@@ -32,16 +39,22 @@ CREATE TABLE profissional (
     especialidade VARCHAR(100) NOT NULL
 );
 
+-- Cria a tabela preceptor
+-- atrbiutos: ID_profissional(chave primária), titulação
 CREATE TABLE preceptor (
     id_profissional INTEGER PRIMARY KEY NOT NULL,
     titulacao VARCHAR(50) NOT NULL
 );
 
+-- Cria a tabela residente
+-- atributos: ID_profissional(chave primária) e ano de residência
 CREATE TABLE residente (
     id_profissional INTEGER PRIMARY KEY NOT NULL,
     ano_residencia VARCHAR(2) NOT NULL
 );
 
+-- Cria a tabela unidade
+-- atributos: id_unidade(chave primária), nome da unidade, tipo da unidade e capacidade de leitos
 CREATE TABLE unidade (
     id_unidade INTEGER PRIMARY KEY NOT NULL,
     nome VARCHAR(100) NOT NULL,
@@ -49,6 +62,8 @@ CREATE TABLE unidade (
     capacidade_leitos INTEGER NOT NULL
 );
 
+-- Cria a tabela de procedimento
+-- atributos: id do procedimento(chave primária), codigo do procedimento, nome do procedimento e seu tempo médio em minutos
 CREATE TABLE procedimento (
     id_procedimento INTEGER PRIMARY KEY NOT NULL,
     codigo VARCHAR(6) NOT NULL UNIQUE,
@@ -56,6 +71,7 @@ CREATE TABLE procedimento (
     tempo_medio_minutos INTEGER NOT NULL
 );
 
+-- Cria a tabela de atendimento
 CREATE TABLE atendimento (
     id_atendimento INTEGER PRIMARY KEY NOT NULL,
     data_hora TIMESTAMP NOT NULL,
@@ -65,6 +81,7 @@ CREATE TABLE atendimento (
     id_preceptor INTEGER NOT NULL
 );
 
+-- Cria a tabela de escala
 CREATE TABLE escala (
     id_escala INTEGER PRIMARY KEY NOT NULL,
     id_unidade INTEGER NOT NULL,
@@ -74,6 +91,7 @@ CREATE TABLE escala (
     id_preceptor INTEGER NOT NULL
 );
 
+-- Cria a tabela de procedimento realizado
 CREATE TABLE procedimento_realizado (
     id_atendimento INTEGER NOT NULL,
     id_procedimento INTEGER NOT NULL,
@@ -83,20 +101,27 @@ CREATE TABLE procedimento_realizado (
     PRIMARY KEY (id_atendimento, id_procedimento)
 );
 
-ALTER TABLE paciente ADD CONSTRAINT fk_paciente_pessoa FOREIGN KEY (id_pessoa) REFERENCES pessoa(id_pessoa);
-ALTER TABLE profissional ADD CONSTRAINT fk_profissional_pessoa FOREIGN KEY (id_pessoa) REFERENCES pessoa(id_pessoa);
-ALTER TABLE preceptor ADD CONSTRAINT fk_preceptor_profissional FOREIGN KEY (id_profissional) REFERENCES profissional(id_pessoa);
-ALTER TABLE residente ADD CONSTRAINT fk_residente_profissional FOREIGN KEY (id_profissional) REFERENCES profissional(id_pessoa);
+-- CRIA RELACIONAMENTOS
+ALTER TABLE paciente ADD CONSTRAINT fk_paciente_pessoa FOREIGN KEY (id_pessoa) REFERENCES pessoa(id_pessoa); -- Paciente é uma pessoa
+ALTER TABLE profissional ADD CONSTRAINT fk_profissional_pessoa FOREIGN KEY (id_pessoa) REFERENCES pessoa(id_pessoa); -- Profissional é uma pessoa
+ALTER TABLE preceptor ADD CONSTRAINT fk_preceptor_profissional FOREIGN KEY (id_profissional) REFERENCES profissional(id_pessoa); -- Preceptor é um profissional
+ALTER TABLE residente ADD CONSTRAINT fk_residente_profissional FOREIGN KEY (id_profissional) REFERENCES profissional(id_pessoa); -- Residente é um profissional
+
+-- Estabelece relacionamentos da tabela de atendidmento
 ALTER TABLE atendimento ADD CONSTRAINT fk_atendimento_paciente FOREIGN KEY (id_paciente) REFERENCES paciente(id_pessoa);
-ALTER TABLE atendimento ADD CONSTRAINT fk_atendimento_residente FOREIGN KEY (id_residente) REFERENCES residente(id_profissional);
+ALTER TABLE atendimento ADD CONSTRAINT fk_atendimento_residente FOREIGN KEY (id_residente) REFERENCES residente(id_profissional); 
 ALTER TABLE atendimento ADD CONSTRAINT fk_atendimento_preceptor FOREIGN KEY (id_preceptor) REFERENCES preceptor(id_profissional);
+
+-- Estabelece relacionamentos da tabela de escala
 ALTER TABLE escala ADD CONSTRAINT fk_escala_unidade FOREIGN KEY (id_unidade) REFERENCES unidade(id_unidade);
 ALTER TABLE escala ADD CONSTRAINT fk_escala_residente FOREIGN KEY (id_residente) REFERENCES residente(id_profissional);
 ALTER TABLE escala ADD CONSTRAINT fk_escala_preceptor FOREIGN KEY (id_preceptor) REFERENCES preceptor(id_profissional);
+
+-- Estabelece relacionamentos da tabela de procedimento
 ALTER TABLE procedimento_realizado ADD CONSTRAINT fk_procedimento_realizado_atendimento FOREIGN KEY (id_atendimento) REFERENCES atendimento(id_atendimento);
 ALTER TABLE procedimento_realizado ADD CONSTRAINT fk_procedimento_realizado_procedimento FOREIGN KEY (id_procedimento) REFERENCES procedimento(id_procedimento);
 
-
+-- POPULA AS TABELAS
 INSERT INTO PESSOA (id_pessoa, nome, CPF, data_nascimento, is_flamengo, telefone) VALUES
 (1, 'Ana Clara', '11111111111', '1995-03-10', TRUE, '83999991111'),
 (2, 'Bruno Mendes', '22222222222', '1988-07-21', FALSE, '83988882222'),
