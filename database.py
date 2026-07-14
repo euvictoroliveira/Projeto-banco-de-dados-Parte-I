@@ -12,6 +12,6 @@ os.environ['LC_MESSAGES'] = 'English'
 conexao = psycopg2.connect(
     dbname="projeto_hospital",
     user="postgres",
-    password="olimandias",
+    password="",
     host="localhost"
 )
