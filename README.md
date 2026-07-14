@@ -63,4 +63,5 @@ python app.py
 
 > **Banco de Dados I | Projeto Final (Parte 1) | UFPB — CI**  
 > Professor: Marcelo Iury
+
 > Grupo: Vitória, Antônio Justino, João Victor, Gutemberg
