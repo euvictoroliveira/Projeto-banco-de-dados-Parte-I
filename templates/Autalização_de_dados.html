@@ -117,23 +117,13 @@
 
     </form>
 </div>
-      //parte do gemnii para implementar exemplos para teste
+      //parte do gemini para implementar exemplos para teste (corrigida)
 <script>
     // Dados de exemplo
-    const dadosBanco = {
-        paciente: [
-            { id: 1, nome: "João Silva" },
-            { id: 2, nome: "Maria Oliveira" },
-            { id: 3, nome: "Carlos Souza" }
-        ],
-        residente: [
-            { id: 10, nome: "Dr. Lucas (R1)" },
-            { id: 11, nome: "Dra. Juliana (R2)" }
-        ],
-        preceptor: [
-            { id: 50, nome: "Dra. Amanda (Cardio)" },
-            { id: 51, nome: "Dr. Ricardo (Pediatria)" }
-        ]
+ const dadosBanco = {
+        paciente: {{ pacientes_json | safe }},
+        residente: {{ residentes_json | safe }},
+        preceptor: {{ preceptores_json | safe }}
     };
 
     function atualizarListaSelecao() {
@@ -141,16 +131,11 @@
         const selectIdFiltrado = document.getElementById("id_filtrado");
         const tipoSelecionadoHidden = document.getElementById("tipo_selecionado");
         
-        // Sincroniza o campo oculto que vai para o Python
         tipoSelecionadoHidden.value = tipoUsuario;
-
-        // Limpa as opções atuais da lista
         selectIdFiltrado.innerHTML = "";
 
-        // Pega os dados corretos baseado na escolha
-        const opcoesFiltradas = dadosBanco[tipoUsuario];
+        const opcoesFiltradas = dadosBanco[tipoUsuario] || [];
 
-        // Cria as novas opções apenas com a categoria escolhida
         opcoesFiltradas.forEach(item => {
             const opt = document.createElement("option");
             opt.value = item.id;
@@ -159,8 +144,7 @@
         });
     }
 
-    // Executa a função uma vez ao carregar a página para já iniciar mostrando os pacientes
-    window.onload = actualizarListaSelecao;
+    window.onload = atualizarListaSelecao;
 </script>
 
 </body>
