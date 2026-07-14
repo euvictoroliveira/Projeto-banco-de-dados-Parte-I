@@ -55,6 +55,18 @@
     <h1>Gestão Hospitalar - Dra. Yuska</h1>
     <h2>Atendimentos Registrados</h2>
 
+    {% if feedback %}
+        {% if 'Erro' in feedback %}
+            <div class="alerta alerta-erro">
+                ⚠ {{ feedback }}
+            </div>
+        {% else %}
+            <div class="alerta alerta-sucesso">
+                ✔ {{ feedback }}
+            </div>
+        {% endif %}
+    {% endif %}
+    
     <div style="background: #ecf0f1; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
         <form action="/listar_atendimentos" method="GET">
 

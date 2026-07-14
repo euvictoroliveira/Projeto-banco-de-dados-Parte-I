@@ -3,6 +3,7 @@
 #
 
 from flask import Blueprint, render_template, request
+from include.verify import validar_cpf, validar_crm
 import database
 import time
 
@@ -10,35 +11,54 @@ listar_atendimentos_bp = Blueprint("listar_atendimentos", __name__)
 novo_atendimento_bp = Blueprint("novo_atendimento", __name__)
 
 
-
+#
+# Método para listar todos os atendimentos de um paciente
+#
 @listar_atendimentos_bp.route('/listar_atendimentos', methods=['GET'])
 def listar_atendimento():
-    if request.method == 'GET':
-        paciente_cpf = request.args.get('cpf')
 
+    if request.method == 'GET':
+
+        # Variáveis
         atendimentos = []
         mensagem_erro = None
+
+        # Recebe o atributo cpf enviado pela requisição
+        paciente_cpf = request.args.get('cpf')
+
+        # Verifica se o atributo existe
+        if not paciente_cpf:
+            return render_template("listar_atendimento.html")
+
+        # Realiza a validação do cpf
+        if not validar_cpf(paciente_cpf):
+            mensagem_erro = "Erro: CPF inválido"
+            return render_template("listar_atendimento.html", feedback=mensagem_erro)
         
-        if paciente_cpf:
-            cursor = database.conexao.cursor()
 
-            consulta = """select a.id_atendimento, a.data_hora, a.duracao_minutos, p_p.nome, p_pre.nome, p_re.nome
-                            from atendimento a
-                            inner join pessoa p_p on p_p.id_pessoa = a.id_paciente 
-                            inner join pessoa p_pre on p_pre.id_pessoa = a.id_preceptor 
-                            inner join pessoa p_re on p_re.id_pessoa = a.id_residente 
-                            where p_p.cpf = %s
-                            order by a.data_hora desc"""
-            
-            cursor.execute(consulta, (paciente_cpf,))
-            atendimentos = cursor.fetchall()
+        cursor = database.conexao.cursor()
 
-            cursor.close()
+        consulta = """
+            select a.id_atendimento, a.data_hora, a.duracao_minutos, p_p.nome, p_pre.nome, p_re.nome
+            from atendimento a
+            inner join pessoa p_p on p_p.id_pessoa = a.id_paciente 
+            inner join pessoa p_pre on p_pre.id_pessoa = a.id_preceptor 
+            inner join pessoa p_re on p_re.id_pessoa = a.id_residente 
+            where p_p.cpf = %s
+            order by a.data_hora desc
+        """
+        
+        cursor.execute(consulta, (paciente_cpf,))
+        atendimentos = cursor.fetchall()
 
-        return render_template("listar_atendimento.html", lista_atendimentos=atendimentos)
+        cursor.close()
+
+        return render_template("listar_atendimento.html", lista_atendimentos=atendimentos, feedback=mensagem_erro)
 
 
-
+#
+# Método para criar um novo atendimento
+#
 @novo_atendimento_bp.route('/novo_atendimento', methods=['GET','POST'])
 def novo_atendimento():
     
@@ -51,6 +71,21 @@ def novo_atendimento():
         residente_crm = request.form.get('residente')
         duracao = request.form.get('duracao')
         data_hora = time.strftime('%Y-%m-%d %H:%M:%S')
+
+        # Realiza a validação do cpf
+        if not validar_cpf(paciente_cpf):
+            mensagem_erro = "Erro: CPF inválido"
+            return render_template("novo_atendimento.html", feedback=mensagem_erro)
+
+        # Validação do crm do preceptor
+        if not validar_crm(preceptor_crm):
+            mensagem_erro = "Erro: CRM preceptor inválido"
+            return render_template("novo_atendimento.html", feedback=mensagem_erro)
+
+        # Validação do crm do residente
+        if not validar_crm(residente_crm):
+            mensagem_erro = "Erro: CRM residente inválido"
+            return render_template("novo_atendimento.html", feedback=mensagem_erro)
 
         if paciente_cpf and preceptor_crm and residente_crm and duracao:
             cursor = database.conexao.cursor()
@@ -89,9 +124,10 @@ def novo_atendimento():
                     
                     mensagem_erro = "Atendimento registrado com sucesso!"
 
+            # Captura falhas e faz rollback do banco
             except Exception as e:
                 database.conexao.rollback()
-                mensagem_erro = f"Erro no banco: {e}"
+                mensagem_erro = f"Erro na operação: {e}"
 
             finally:
                 cursor.close()

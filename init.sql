@@ -150,25 +150,25 @@ alter table paciente_tem_alergia add CONSTRAINT fk_pta_alergia FOREIGN KEY (id_a
 
 -- POPULA AS TABELAS
 INSERT INTO pessoa (id_pessoa, nome, cpf, data_nascimento, is_flamengo, telefone, cep, logradouro, numero, complemento, bairro, cidade, uf) VALUES
-(1, 'Ana Clara', '11111111111', '1995-03-10', TRUE, '83999991111', '58000001', 'Rua das Flores', '123', 'Apt 101', 'Centro', 'João Pessoa', 'PB'),
-(2, 'Bruno Mendes', '22222222222', '1988-07-21', FALSE, '83988882222', '58000002', 'Av. Epitácio Pessoa', '456', '', 'Tambaú', 'João Pessoa', 'PB'),
-(3, 'Carlos Eduardo', '33333333333', '2001-11-05', TRUE, '83977773333', '58000003', 'Rua Bancário', '789', 'Casa B', 'Bancários', 'João Pessoa', 'PB'),
-(4, 'Diana Silva', '44444444444', '1975-01-30', FALSE, '83966664444', '58000004', 'Av. Ruy Carneiro', '101', '', 'Manaíra', 'João Pessoa', 'PB'),
-(5, 'Evelyn Costa', '55555555555', '1999-09-15', TRUE, '83955555555', '58000005', 'Rua da Praia', '202', 'Bloco C', 'Cabo Branco', 'João Pessoa', 'PB');
+(1, 'Ana Clara', '00000000191', '1995-03-10', TRUE, '83999991111', '58000001', 'Rua das Flores', '123', 'Apt 101', 'Centro', 'João Pessoa', 'PB'),
+(2, 'Bruno Mendes', '00000000272', '1988-07-21', FALSE, '83988882222', '58000002', 'Av. Epitácio Pessoa', '456', '', 'Tambaú', 'João Pessoa', 'PB'),
+(3, 'Carlos Eduardo', '00000000353', '2001-11-05', TRUE, '83977773333', '58000003', 'Rua Bancário', '789', 'Casa B', 'Bancários', 'João Pessoa', 'PB'),
+(4, 'Diana Silva', '00000000434', '1975-01-30', FALSE, '83966664444', '58000004', 'Av. Ruy Carneiro', '101', '', 'Manaíra', 'João Pessoa', 'PB'),
+(5, 'Evelyn Costa', '00000000515', '1999-09-15', TRUE, '83955555555', '58000005', 'Rua da Praia', '202', 'Bloco C', 'Cabo Branco', 'João Pessoa', 'PB');
 
 INSERT INTO pessoa (id_pessoa, nome, cpf, data_nascimento, is_flamengo, telefone, cep, logradouro, numero, complemento, bairro, cidade, uf) VALUES
-(6, 'Dr. Felipe Souza', '66666666666', '1994-02-20', FALSE, '83944446666', '58000006', 'Rua das Acácias', '303', '', 'Bessa', 'João Pessoa', 'PB'),
-(7, 'Dra. Gabriela Nunes', '77777777777', '1993-06-12', TRUE, '83933337777', '58000007', 'Rua dos Ipês', '404', 'Apt 202', 'Castelo Branco', 'João Pessoa', 'PB'),
-(8, 'Dr. Henrique Lima', '88888888888', '1995-10-08', FALSE, '83922228888', '58000008', 'Av. João Maurício', '505', '', 'Manaíra', 'João Pessoa', 'PB'),
-(9, 'Dra. Isabela Rocha', '99999999999', '1992-12-25', TRUE, '83911119999', '58000009', 'Rua Flamboyant', '606', 'Casa', 'Altiplano', 'João Pessoa', 'PB'),
-(10, 'Dr. João Pedro', '10101010101', '1996-04-18', FALSE, '83900001010', '58000010', 'Rua das Palmeiras', '707', '', 'Miramar', 'João Pessoa', 'PB');
+(6, 'Dr. Felipe Souza', '00000000604', '1994-02-20', FALSE, '83944446666', '58000006', 'Rua das Acácias', '303', '', 'Bessa', 'João Pessoa', 'PB'),
+(7, 'Dra. Gabriela Nunes', '00000000787', '1993-06-12', TRUE, '83933337777', '58000007', 'Rua dos Ipês', '404', 'Apt 202', 'Castelo Branco', 'João Pessoa', 'PB'),
+(8, 'Dr. Henrique Lima', '00000000868', '1995-10-08', FALSE, '83922228888', '58000008', 'Av. João Maurício', '505', '', 'Manaíra', 'João Pessoa', 'PB'),
+(9, 'Dra. Isabela Rocha', '00000000949', '1992-12-25', TRUE, '83911119999', '58000009', 'Rua Flamboyant', '606', 'Casa', 'Altiplano', 'João Pessoa', 'PB'),
+(10, 'Dr. João Pedro', '00000001082', '1996-04-18', FALSE, '83900001010', '58000010', 'Rua das Palmeiras', '707', '', 'Miramar', 'João Pessoa', 'PB');
 
 INSERT INTO pessoa (id_pessoa, nome, cpf, data_nascimento, is_flamengo, telefone, cep, logradouro, numero, complemento, bairro, cidade, uf) VALUES
-(11, 'Dra. Karen Dias', '12121212121', '1980-05-11', TRUE, '83999991212', '58000011', 'Av. Beira Mar', '808', 'Cobertura', 'Cabo Branco', 'João Pessoa', 'PB'),
-(12, 'Dr. Leonardo Melo', '13131313131', '1978-08-30', FALSE, '83988881313', '58000012', 'Rua do Sol', '909', '', 'Tambaú', 'João Pessoa', 'PB'),
-(13, 'Dra. Mariana Farias', '14141414141', '1982-11-22', TRUE, '83977771414', '58000013', 'Rua da Lua', '100', 'Apt 505', 'Bessa', 'João Pessoa', 'PB'),
-(14, 'Dr. Nilton Cezar', '15151515151', '1975-02-14', FALSE, '83966661515', '58000014', 'Av. das Estrelas', '200', '', 'Intermares', 'Cabedelo', 'PB'),
-(15, 'Dra. Olivia Martins', '16161616161', '1985-09-07', TRUE, '83955551616', '58000015', 'Rua Oceano', '300', 'Casa de Esquina', 'Poço', 'Cabedelo', 'PB');
+(11, 'Dra. Karen Dias', '00000001163', '1980-05-11', TRUE, '83999991212', '58000011', 'Av. Beira Mar', '808', 'Cobertura', 'Cabo Branco', 'João Pessoa', 'PB'),
+(12, 'Dr. Leonardo Melo', '00000001244', '1978-08-30', FALSE, '83988881313', '58000012', 'Rua do Sol', '909', '', 'Tambaú', 'João Pessoa', 'PB'),
+(13, 'Dra. Mariana Farias', '00000001325', '1982-11-22', TRUE, '83977771414', '58000013', 'Rua da Lua', '100', 'Apt 505', 'Bessa', 'João Pessoa', 'PB'),
+(14, 'Dr. Nilton Cezar', '00000001406', '1975-02-14', FALSE, '83966661515', '58000014', 'Av. das Estrelas', '200', '', 'Intermares', 'Cabedelo', 'PB'),
+(15, 'Dra. Olivia Martins', '00000001597', '1985-09-07', TRUE, '83955551616', '58000015', 'Rua Oceano', '300', 'Casa de Esquina', 'Poço', 'Cabedelo', 'PB');
 
 INSERT INTO PACIENTE (id_pessoa, numero_convenio, tipo_sanguineo) VALUES
 (1, 'CONV1001', 'O+'),
@@ -191,16 +191,16 @@ INSERT INTO paciente_tem_alergia (id_paciente, id_alergia) VALUES
 (5, 4);
 
 INSERT INTO PROFISSIONAL (id_pessoa, CRM, data_admissao, especialidade) VALUES
-(6, 'CRM1001', '2023-03-01', 'Clínica Médica'),
-(7, 'CRM1002', '2023-03-01', 'Pediatria'),
-(8, 'CRM1003', '2022-03-01', 'Cirurgia Geral'),
-(9, 'CRM1004', '2024-03-01', 'Ginecologia'),
-(10, 'CRM1005', '2023-03-01', 'Ortopedia'),
-(11, 'CRM2001', '2015-01-10', 'Clínica Médica'),
-(12, 'CRM2002', '2012-05-20', 'Pediatria'),
-(13, 'CRM2003', '2018-07-15', 'Cirurgia Geral'),
-(14, 'CRM2004', '2010-09-01', 'Ginecologia'),
-(15, 'CRM2005', '2016-11-11', 'Ortopedia');
+(6, '03212/PB', '2023-03-01', 'Clínica Médica'),
+(7, '02345/PB', '2023-03-01', 'Pediatria'),
+(8, '002345/PB', '2022-03-01', 'Cirurgia Geral'),
+(9, '02344/PB', '2024-03-01', 'Ginecologia'),
+(10, '01205/PB', '2023-03-01', 'Ortopedia'),
+(11, '01106/PB', '2015-01-10', 'Clínica Médica'),
+(12, '0807/PB', '2012-05-20', 'Pediatria'),
+(13, '0108/PB', '2018-07-15', 'Cirurgia Geral'),
+(14, '0309/PB', '2010-09-01', 'Ginecologia'),
+(15, '1010/PB', '2016-11-11', 'Ortopedia');
 
 INSERT INTO RESIDENTE (id_profissional, ano_residencia) VALUES
 (6, 'R2'),
