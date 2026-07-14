@@ -14,6 +14,8 @@ def atualizar_paciente():
 
     else:
 
+        mensagem_erro = None
+
         cpf = request.form.get("cpf")
 
         cep = request.form.get("cep")
@@ -119,9 +121,9 @@ def atualizar_paciente():
                 database.conexao.commit()
 
                 if alterou:
-                    mensagem = "Paciente atualizado com sucesso."
+                    mensagem_erro = "Paciente atualizado com sucesso."
                 else: 
-                    mensagem = "Nenhum houve nenhuma alteração."
+                    mensagem_erro = "Nenhum houve nenhuma alteração."
 
 
         except Exception as e:
@@ -133,7 +135,7 @@ def atualizar_paciente():
 
             cursor.close()
 
-        return render_template("atualizar_paciente.html", feedback=mensagem)
+        return render_template("atualizar_paciente.html", feedback=mensagem_erro)
 
 # Lista pacientes que nunca realizaram procedimento de risco ALTO
 @listar_pacientes_sem_alto_bp.route('/pacientes_sem_alto', methods=['GET'])
