@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Dra. Yuska - Atualizar Paciente</title>
+
+    <style>
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f7fb;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .btn-voltar {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            background-color: #7f8c8d;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .btn-voltar:hover {
+            background-color: #95a5a6;
+        }
+
+        .alerta {
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .alerta-erro {
+            background-color: #fdecea;
+            color: #c0392b;
+            border: 1px solid #e74c3c;
+        }
+
+        .alerta-sucesso {
+            background-color: #eafaf1;
+            color: #27ae60;
+            border: 1px solid #2ecc71;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        input {
+            padding: 8px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 200px;
+            padding: 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <a href="/" class="btn-voltar">⬅ Voltar ao Menu</a>
+
+    <h1>Gestão Hospitalar - Dra. Yuska</h1>
+
+    <h2>Atualizar Dados do Paciente</h2>
+
+    {% if feedback %}
+        {% if 'Erro' in feedback %}
+            <div class="alerta alerta-erro">
+                ⚠ {{ feedback }}
+            </div>
+        {% else %}
+            <div class="alerta alerta-sucesso">
+                ✔ {{ feedback }}
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <div style="background:#ecf0f1; padding:15px; border-radius:5px;">
+
+        <form action="/atualizar_paciente" method="POST">
+
+            <label><strong>CPF do paciente</strong></label>
+            <input
+                type="text"
+                name="cpf"
+                placeholder="Digite apenas os números"
+                required
+            >
+
+            <label><strong>CEP</strong></label>
+            <input
+                type="text"
+                name="cep"
+                placeholder="CEP"
+            >
+
+            <label><strong>Logradouro</strong></label>
+            <input
+                type="text"
+                name="logradouro"
+                placeholder="Rua, Avenida..."
+            >
+
+            <label><strong>Número</strong></label>
+            <input
+                type="text"
+                name="numero"
+                placeholder="Número"
+            >
+
+            <label><strong>Complemento</strong></label>
+            <input
+                type="text"
+                name="complemento"
+                placeholder="Apartamento, bloco..."
+            >
+
+            <label><strong>Bairro</strong></label>
+            <input
+                type="text"
+                name="bairro"
+                placeholder="Bairro"
+            >
+
+            <label><strong>Cidade</strong></label>
+            <input
+                type="text"
+                name="cidade"
+                placeholder="Cidade"
+            >
+
+            <label><strong>UF</strong></label>
+            <input
+                type="text"
+                name="uf"
+                maxlength="2"
+                placeholder="Ex: PB"
+            >
+
+            <label><strong>Número do Convênio</strong></label>
+            <input
+                type="text"
+                name="convenio"
+                placeholder="Número do convênio"
+            >
+
+            <button type="submit">
+                Atualizar Paciente
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>
