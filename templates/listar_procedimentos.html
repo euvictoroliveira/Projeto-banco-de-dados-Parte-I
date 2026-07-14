@@ -4,68 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hospital Dra. Yuska - procedimentos</title>
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif;
-         margin: 40px; 
-         background-color: #f5f7fb; 
-         color: #333; 
-        }
-        .container { max-width: 900px; 
-            margin: 0 auto; 
-            background: white; 
-            padding: 30px; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        h1 {color: #2c3e50; 
-            border-bottom: 2px solid#3498db; 
-            padding-bottom: 10px;
-        }
-        table {border-collapse: collapse; 
-            width: 100%; 
-            margin-top: 20px; 
-            background: #fff;
-        }
-        th, td {border: 1px solid #e0e0e0; 
-            padding: 12px; 
-            text-align: left;
-        }
-        th {background-color: #34495e; 
-            color: white;
-        }
-        tr:nth-child(even) {background-color: #f9f9f9;}
-        .btn-voltar {
-            display: inline-block;
-            margin-bottom: 20px;
-            padding: 10px 15px;
-            background-color: #7f8c8d;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-        .btn-voltar:hover { background-color: #95a5a6;}
-        .alerta {
-            padding: 12px 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-        .alerta-erro {
-            background-color: #fdecea;
-            color: #c0392b;
-            border: 1px solid #f5c6cb;
-        }
-        .alerta-sucesso {
-            background-color: #eafaf1;
-            color: #27ae60;
-            border: 1px solid #c3e6cb;
-        }
-        .faturado-sim { color: #27ae60; font-weight: bold; }
-        .faturado-nao { color: #c0392b; font-weight: bold; }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+<body class="pagina-interna">
 
 <div class="container">
     <a href="/" class="btn-voltar">⬅ Voltar ao Menu</a>
@@ -85,16 +26,15 @@
         {% endif %}
     {% endif %}
 
-    <div style="background: #ecf0f1; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+    <div class="form-caixa">
         <form action="/listar_procedimentos" method="GET">
 
-            <label for="id_atendimento" style="font-weight: bold;">Buscar por Nº do Atendimento:</label>
+            <label for="id_atendimento">Buscar por Nº do Atendimento:</label>
 
             <input type="text" id="id_atendimento" name="id_atendimento" placeholder="Digite o número do atendimento"
-                   value="{{ request.args.get('id_atendimento', '') }}"
-                   style="padding: 8px; border: 1px solid #bdc3c7; border-radius: 4px;">
+                   value="{{ request.args.get('id_atendimento', '') }}">
 
-            <button type="submit" style="padding: 8px 15px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">Buscar</button>
+            <button type="submit">Buscar</button>
 
         </form>
     </div>
@@ -126,7 +66,7 @@
         </tr>
         {% else %}
         <tr>
-            <td colspan="6" style="text-align: center; color: #7f8c8d;">Nenhum procedimento encontrado.</td>
+            <td colspan="6" class="vazio">Nenhum procedimento encontrado.</td>
         </tr>
         {% endfor %}
     </table>

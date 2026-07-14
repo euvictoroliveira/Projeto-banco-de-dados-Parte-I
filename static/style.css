@@ -1,0 +1,258 @@
+/* =========================================================
+   Hospital Dra. Yuska Maritan Brito - Estilos globais
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f7fb;
+    color: #333;
+}
+
+h1 {
+    color: #2c3e50;
+}
+
+/* =========================================================
+   Página de menu (index.html)
+   ========================================================= */
+
+body.pagina-menu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.menu-container {
+    max-width: 800px;
+    width: 100%;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+.menu-container h1 {
+    margin-bottom: 10px;
+    font-size: 32px;
+}
+
+p.subtitulo {
+    color: #7f8c8d;
+    margin-bottom: 40px;
+    font-size: 16px;
+}
+
+.grid-menu {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.card-botao {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 20px;
+    background: #ffffff;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #34495e;
+    font-size: 18px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+}
+
+.card-botao:hover {
+    border-color: #3498db;
+    background-color: #3498db;
+    color: white;
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(52, 152, 219, 0.2);
+}
+
+.card-botao span.icone {
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+/* =========================================================
+   Páginas internas (listagens, formulários, estatísticas)
+   ========================================================= */
+
+body.pagina-interna {
+    margin: 40px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.container + .container {
+    margin-top: 20px;
+}
+
+.container h1 {
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+}
+
+.btn-voltar {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 10px 15px;
+    background-color: #7f8c8d;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.btn-voltar:hover {
+    background-color: #95a5a6;
+}
+
+/* =========================================================
+   Tabelas
+   ========================================================= */
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+    background: #fff;
+}
+
+th, td {
+    border: 1px solid #e0e0e0;
+    padding: 12px;
+    text-align: left;
+}
+
+th {
+    background-color: #34495e;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+td.vazio {
+    text-align: center;
+    color: #7f8c8d;
+}
+
+/* =========================================================
+   Alertas de feedback (sucesso / erro)
+   ========================================================= */
+
+.alerta {
+    padding: 12px 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.alerta-erro {
+    background-color: #fdecea;
+    color: #c0392b;
+    border: 1px solid #f5c6cb;
+}
+
+.alerta-sucesso {
+    background-color: #eafaf1;
+    color: #27ae60;
+    border: 1px solid #c3e6cb;
+}
+
+/* =========================================================
+   Formulários de busca / cadastro
+   ========================================================= */
+
+.form-caixa {
+    background: #ecf0f1;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.form-caixa label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+}
+
+.form-caixa label:first-child {
+    margin-top: 0;
+}
+
+.form-caixa input[type="text"] {
+    margin-top: 5px;
+    padding: 8px;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+}
+
+.form-caixa button {
+    margin-top: 10px;
+    padding: 8px 15px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.form-caixa button:hover {
+    background: #2980b9;
+}
+
+/* Variante vertical: um campo por linha (ex: atualizar_paciente.html) */
+.form-vertical form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-vertical label {
+    margin-top: 0;
+}
+
+.form-vertical input[type="text"] {
+    margin-top: 0;
+}
+
+.form-vertical button {
+    width: 200px;
+}
+
+/* =========================================================
+   Status de faturamento
+   ========================================================= */
+
+.faturado-sim {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.faturado-nao {
+    color: #c0392b;
+    font-weight: bold;
+}
