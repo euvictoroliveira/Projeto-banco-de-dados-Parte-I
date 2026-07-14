@@ -40,15 +40,36 @@
 
     <div class="container">
 
-    <h2>Exemplo: Preceptores com mais de 5 atendimentos</h2>
+    <h2>Preceptores com mais de 5 atendimentos no mês</h2>
+
+    <div class="form-caixa">
+        <form action="/estatisticas" method="GET">
+
+            <label for="mes">Mês de referência:</label>
+
+            <input type="month" id="mes" name="mes" value="{{ mes_selecionado }}">
+
+            <button type="submit">Filtrar</button>
+
+        </form>
+    </div>
+
     <table>
         <tr>
             <th>Nome</th>
+            <th>Atendimentos</th>
         </tr>
 
+        {% for linha in preceptores_mais_de_5 %}
         <tr>
-            <td colspan="1" class="vazio">Nenhum registro encontrado.</td>
+            <td>{{ linha[0] }}</td>
+            <td>{{ linha[1] }}</td>
         </tr>
+        {% else %}
+        <tr>
+            <td colspan="2" class="vazio">Nenhum preceptor supervisionou mais de 5 atendimentos neste mês.</td>
+        </tr>
+        {% endfor %}
     </table>
 
     </div>

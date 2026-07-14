@@ -1,6 +1,8 @@
-/* =========================================================
+/* 
+
    Hospital Dra. Yuska Maritan Brito - Estilos globais
-   ========================================================= */
+   
+   */
 
 * {
     box-sizing: border-box;
@@ -18,9 +20,11 @@ h1 {
     color: #2c3e50;
 }
 
-/* =========================================================
+/* 
+
    Página de menu (index.html)
-   ========================================================= */
+   
+   */
 
 body.pagina-menu {
     display: flex;
@@ -86,9 +90,11 @@ p.subtitulo {
     margin-bottom: 10px;
 }
 
-/* =========================================================
+/* 
+
    Páginas internas (listagens, formulários, estatísticas)
-   ========================================================= */
+   
+   */
 
 body.pagina-interna {
     margin: 40px;
@@ -127,9 +133,11 @@ body.pagina-interna {
     background-color: #95a5a6;
 }
 
-/* =========================================================
+/* 
+
    Tabelas
-   ========================================================= */
+   
+   */
 
 table {
     border-collapse: collapse;
@@ -158,9 +166,11 @@ td.vazio {
     color: #7f8c8d;
 }
 
-/* =========================================================
+/* 
+
    Alertas de feedback (sucesso / erro)
-   ========================================================= */
+   
+   */
 
 .alerta {
     padding: 12px 15px;
@@ -181,9 +191,11 @@ td.vazio {
     border: 1px solid #c3e6cb;
 }
 
-/* =========================================================
+/* 
+
    Formulários de busca / cadastro
-   ========================================================= */
+   
+   */
 
 .form-caixa {
     background: #ecf0f1;
@@ -202,7 +214,8 @@ td.vazio {
     margin-top: 0;
 }
 
-.form-caixa input[type="text"] {
+.form-caixa input[type="text"],
+.form-caixa input[type="month"] {
     margin-top: 5px;
     padding: 8px;
     border: 1px solid #bdc3c7;
@@ -243,9 +256,11 @@ td.vazio {
     width: 200px;
 }
 
-/* =========================================================
+/* 
+
    Status de faturamento
-   ========================================================= */
+   
+   */
 
 .faturado-sim {
     color: #27ae60;
