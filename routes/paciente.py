@@ -51,48 +51,77 @@ def atualizar_paciente():
 
                 id_paciente = paciente[0]
 
-                # Atualiza endereço
-                cursor.execute(
-                    """
-                    UPDATE pessoa
-                    SET
-                        cep=%s,
-                        logradouro=%s,
-                        numero=%s,
-                        complemento=%s,
-                        bairro=%s,
-                        cidade=%s,
-                        uf=%s
-                    WHERE id_pessoa=%s
-                    """,
-                    (
-                        cep,
-                        logradouro,
-                        numero,
-                        complemento,
-                        bairro,
-                        cidade,
-                        uf,
-                        id_paciente
-                    )
-                )
+                alterou = False
 
-                # Atualiza convênio
-                cursor.execute(
+                campos = []
+                valores  = []
+
+                if cep:
+                    campos.append("cep = %s")
+                    valores.append(cep)
+
+                if logradouro:
+                    campos.append("logradouro = %s")
+                    valores.append(logradouro)
+
+                if numero:
+                    campos.append("numero = %s")
+                    valores.append(numero)
+
+                if complemento:
+                    campos.append("complemento = %s")
+                    valores.append(complemento)
+
+                if bairro:
+                    campos.append("bairro = %s")
+                    valores.append(bairro)
+
+                if cidade:
+                    campos.append("cidade = %s")
+                    valores.append(cidade)
+
+                if uf:
+                    campos.append("uf = %s")
+                    valores.append(uf)
+
+                # Executa UPDATE somente se algum campo foi preenchido
+                if campos:
+
+                    consulta = f"""
+                        UPDATE pessoa
+                        SET {', '.join(campos)}
+                        WHERE id_pessoa = %s
                     """
-                    UPDATE paciente
-                    SET numero_convenio=%s
-                    WHERE id_pessoa=%s
-                    """,
-                    (
-                        convenio,
-                        id_paciente
+
+                    valores.append(id_paciente)
+
+                    cursor.execute(consulta, tuple(valores))
+                    
+                    alterou = True
+                
+                if convenio:
+
+                    cursor.execute(
+                        """
+                        UPDATE paciente
+                        SET numero_convenio = %s
+                        WHERE id_pessoa = %s
+                        """,
+                        (
+                            convenio,
+                            id_paciente
+                        )
                     )
-                )
+
+                    alterou = True
 
                 database.conexao.commit()
 
-                mensagem_erro = "Paciente atualizado com sucesso."
+                if alterou:
+                    mensagem = "Paciente atualizado com sucesso."
+                else: 
+                    mensagem = "Nenhum houve nenhuma alteração."
+
 
         except Exception as e:
 
@@ -105,5 +134,5 @@ def atualizar_paciente():
 
         return render_template(
             "atualizar_paciente.html",
-            feedback=mensagem_erro
+            feedback=mensagem
         )
