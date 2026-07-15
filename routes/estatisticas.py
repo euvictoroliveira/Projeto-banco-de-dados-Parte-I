@@ -50,6 +50,34 @@ def get_preceptores_mais_de_5_atendimentos(ano, mes):
 
     return resultado
 
+# Para cada unidade, quantidade de plantões escalados por residente no mês corrente.
+def get_plantoes_por_unidade_residente(ano, mes):
+    cursor = database.conexao.cursor()
+
+    consulta = """
+        SELECT u.nome, p.nome, count(*)
+        FROM escala e
+        INNER JOIN unidade u ON u.id_unidade = e.id_unidade
+        INNER JOIN residente r ON r.id_profissional = e.id_residente
+        INNER JOIN pessoa p ON p.id_pessoa = r.id_profissional
+        WHERE e.mes_plantao = %s
+          AND e.ano_plantao = %s
+        GROUP BY u.id_unidade, u.nome, p.id_pessoa, p.nome
+        ORDER BY u.nome, count(*) DESC, p.nome
+    """
+
+    cursor.execute(consulta, (mes, ano))
+    resultado = cursor.fetchall()
+    cursor.close()
+
+    # Agrupa as linhas (unidade, residente, quantidade) por unidade,
+    # já que o Jinja não faz "group by" sozinho.
+    plantoes_por_unidade = {}
+    for unidade, residente, quantidade in resultado:
+        plantoes_por_unidade.setdefault(unidade, []).append((residente, quantidade))
+
+    return plantoes_por_unidade
+
 @estatisticas_bp.route('/estatisticas', methods=['GET'])
 def estatisticas():
 
@@ -69,11 +97,13 @@ def estatisticas():
     mes_selecionado = f"{ano:04d}-{mes:02d}"
 
     preceptores = get_preceptores_mais_de_5_atendimentos(ano, mes)
+    plantoes_por_unidade = get_plantoes_por_unidade_residente(ano, mes)
 
     return render_template(
         'estatisticas.html',
         ranking_residentes=ranking,
         preceptores_mais_de_5=preceptores,
+        plantoes_por_unidade=plantoes_por_unidade,
         mes_selecionado=mes_selecionado
     )
 

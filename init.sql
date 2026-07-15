@@ -110,7 +110,10 @@ CREATE TABLE escala (
     dia_semana VARCHAR(15) NOT NULL,
     turno VARCHAR(10) NOT NULL,
     id_residente INTEGER NOT NULL,
-    id_preceptor INTEGER NOT NULL
+    id_preceptor INTEGER NOT NULL,
+    dia_plantao INTEGER NOT NULL CHECK (dia_plantao BETWEEN 1 AND 31),
+    mes_plantao INTEGER NOT NULL CHECK (mes_plantao BETWEEN 1 AND 12),
+    ano_plantao INTEGER NOT NULL
 );
 
 -- Cria a tabela de procedimento realizado

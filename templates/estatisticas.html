@@ -74,6 +74,40 @@
 
     </div>
 
+    <div class="container">
+
+    <h2>Plantões escalados por residente, por unidade, no mês</h2>
+
+    <p>Usa o mesmo mês selecionado no filtro acima.</p>
+
+    {% for unidade, linhas in plantoes_por_unidade.items() %}
+    <h3>{{ unidade }}</h3>
+    <table>
+        <tr>
+            <th>Residente</th>
+            <th>Plantões</th>
+        </tr>
+
+        {% for residente, quantidade in linhas %}
+        <tr>
+            <td>{{ residente }}</td>
+            <td>{{ quantidade }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <table>
+        <tr>
+            <th>Unidade</th>
+        </tr>
+        <tr>
+            <td class="vazio">Nenhum plantão escalado neste mês.</td>
+        </tr>
+    </table>
+    {% endfor %}
+
+    </div>
+
 </div>
 
 </body>
