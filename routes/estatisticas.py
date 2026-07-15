@@ -50,33 +50,52 @@ def get_preceptores_mais_de_5_atendimentos(ano, mes):
 
     return resultado
 
-# Para cada unidade, quantidade de plantões escalados por residente no mês corrente.
-def get_plantoes_por_unidade_residente(ano, mes):
+# Lista de residentes cadastrados, para popular o dropdown de filtro.
+def get_lista_residentes():
     cursor = database.conexao.cursor()
 
     consulta = """
-        SELECT u.nome, p.nome, count(*)
-        FROM escala e
-        INNER JOIN unidade u ON u.id_unidade = e.id_unidade
-        INNER JOIN residente r ON r.id_profissional = e.id_residente
+        SELECT r.id_profissional, p.nome
+        FROM residente r
         INNER JOIN pessoa p ON p.id_pessoa = r.id_profissional
-        WHERE e.mes_plantao = %s
-          AND e.ano_plantao = %s
-        GROUP BY u.id_unidade, u.nome, p.id_pessoa, p.nome
-        ORDER BY u.nome, count(*) DESC, p.nome
+        ORDER BY p.nome
     """
 
-    cursor.execute(consulta, (mes, ano))
+    cursor.execute(consulta)
     resultado = cursor.fetchall()
     cursor.close()
 
-    # Agrupa as linhas (unidade, residente, quantidade) por unidade,
-    # já que o Jinja não faz "group by" sozinho.
-    plantoes_por_unidade = {}
-    for unidade, residente, quantidade in resultado:
-        plantoes_por_unidade.setdefault(unidade, []).append((residente, quantidade))
+    return resultado
 
-    return plantoes_por_unidade
+# Quantidade de plantões escalados por unidade, em um mês/ano.
+# Se id_residente for informado, filtra apenas os plantões daquele residente;
+# caso contrário, soma os plantões de todos os residentes.
+def get_plantoes_por_unidade(ano, mes, id_residente=None):
+    cursor = database.conexao.cursor()
+
+    consulta = """
+        SELECT u.nome, count(*)
+        FROM escala e
+        INNER JOIN unidade u ON u.id_unidade = e.id_unidade
+        WHERE e.mes_plantao = %s
+          AND e.ano_plantao = %s
+    """
+    parametros = [mes, ano]
+
+    if id_residente:
+        consulta += " AND e.id_residente = %s"
+        parametros.append(id_residente)
+
+    consulta += """
+        GROUP BY u.id_unidade, u.nome
+        ORDER BY u.nome
+    """
+
+    cursor.execute(consulta, tuple(parametros))
+    resultado = cursor.fetchall()
+    cursor.close()
+
+    return resultado
 
 @estatisticas_bp.route('/estatisticas', methods=['GET'])
 def estatisticas():
@@ -97,14 +116,35 @@ def estatisticas():
     mes_selecionado = f"{ano:04d}-{mes:02d}"
 
     preceptores = get_preceptores_mais_de_5_atendimentos(ano, mes)
-    plantoes_por_unidade = get_plantoes_por_unidade_residente(ano, mes)
+
+    # Filtros próprios da seção de plantões (mês/ano + residente),
+    # independentes do filtro de preceptores acima.
+    mes_plantoes_raw = request.args.get('mes_plantoes')
+
+    try:
+        ano_plantoes, mes_plantoes = mes_plantoes_raw.split('-')
+        ano_plantoes, mes_plantoes = int(ano_plantoes), int(mes_plantoes)
+    except (AttributeError, ValueError):
+        hoje = date.today()
+        ano_plantoes, mes_plantoes = hoje.year, hoje.month
+
+    mes_plantoes_selecionado = f"{ano_plantoes:04d}-{mes_plantoes:02d}"
+
+    id_residente_raw = request.args.get('id_residente')
+    id_residente_selecionado = int(id_residente_raw) if id_residente_raw and id_residente_raw.isdigit() else None
+
+    lista_residentes = get_lista_residentes()
+    plantoes_por_unidade = get_plantoes_por_unidade(ano_plantoes, mes_plantoes, id_residente_selecionado)
 
     return render_template(
         'estatisticas.html',
         ranking_residentes=ranking,
         preceptores_mais_de_5=preceptores,
+        mes_selecionado=mes_selecionado,
         plantoes_por_unidade=plantoes_por_unidade,
-        mes_selecionado=mes_selecionado
+        mes_plantoes_selecionado=mes_plantoes_selecionado,
+        lista_residentes=lista_residentes,
+        id_residente_selecionado=id_residente_selecionado
     )
 
 # Tempo médio de duração dos atendimentos por residente

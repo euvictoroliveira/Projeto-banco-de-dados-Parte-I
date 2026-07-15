@@ -76,35 +76,44 @@
 
     <div class="container">
 
-    <h2>Plantões escalados por residente, por unidade, no mês</h2>
+    <h2>Plantões escalados por unidade, no mês</h2>
 
-    <p>Usa o mesmo mês selecionado no filtro acima.</p>
+    <div class="form-caixa">
+        <form action="/estatisticas" method="GET">
 
-    {% for unidade, linhas in plantoes_por_unidade.items() %}
-    <h3>{{ unidade }}</h3>
-    <table>
-        <tr>
-            <th>Residente</th>
-            <th>Plantões</th>
-        </tr>
+            <label for="mes_plantoes">Mês de referência:</label>
+            <input type="month" id="mes_plantoes" name="mes_plantoes" value="{{ mes_plantoes_selecionado }}">
 
-        {% for residente, quantidade in linhas %}
-        <tr>
-            <td>{{ residente }}</td>
-            <td>{{ quantidade }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% else %}
+            <label for="id_residente">Residente:</label>
+            <select id="id_residente" name="id_residente">
+                <option value="">Todos os residentes</option>
+                {% for id_profissional, nome in lista_residentes %}
+                <option value="{{ id_profissional }}" {% if id_residente_selecionado == id_profissional %}selected{% endif %}>{{ nome }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Filtrar</button>
+
+        </form>
+    </div>
+
     <table>
         <tr>
             <th>Unidade</th>
+            <th>Plantões</th>
         </tr>
+
+        {% for unidade, quantidade in plantoes_por_unidade %}
         <tr>
-            <td class="vazio">Nenhum plantão escalado neste mês.</td>
+            <td>{{ unidade }}</td>
+            <td>{{ quantidade }}</td>
         </tr>
+        {% else %}
+        <tr>
+            <td colspan="2" class="vazio">Nenhum plantão escalado neste mês.</td>
+        </tr>
+        {% endfor %}
     </table>
-    {% endfor %}
 
     </div>
 
