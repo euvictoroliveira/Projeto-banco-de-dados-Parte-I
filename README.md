@@ -80,6 +80,20 @@ python app.py
 
 ### 6. Para acessar no navegador, copie o endereço IP exibido no terminal e cole no seu navegador.
 
+## Rotas e Funcionalidades disponíveis
+
+| Rota | Método | Descrição |
+|---|---|---|
+| `/` | GET | Menu principal |
+| `/listar_atendimentos` | GET | Lista atendimentos, com busca por CPF do paciente |
+| `/novo_atendimento` | GET, POST | Cadastra um novo atendimento |
+| `/listar_procedimentos` | GET | Lista os procedimentos realizados em um atendimento |
+| `/remover_procedimento` | GET, POST | Remove um procedimento realizado |
+| `/atualizar_paciente` | GET, POST | Atualiza endereço e número de convênio do paciente |
+| `/pacientes_sem_alto` | GET | Lista pacientes que nunca realizaram procedimento de risco ALTO |
+| `/estatisticas` | GET | Ranking de residentes, preceptores com mais de 5 atendimentos no mês e plantões escalados por unidade |
+| `/tempo_medio_residentes` | GET | Tempo médio de duração dos atendimentos, por residente |
+
 ---
 
 > **Banco de Dados I | Projeto Final (Parte 1) | UFPB — CI**  
