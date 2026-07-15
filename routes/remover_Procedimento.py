@@ -77,7 +77,7 @@ def remover_procedimento():
 
     # Retorna o HTML passando as variáveis padronizadas
     return render_template(
-        "Remover_procedimento.html", 
+        "remover_procedimento.html", 
         dados_atendimento=dados_atendimento, 
         lista_procedimentos=lista_procedimentos, 
         feedback=feedback,

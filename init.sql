@@ -262,10 +262,10 @@ INSERT INTO PROCEDIMENTO_REALIZADO (id_atendimento, id_procedimento, quantidade,
 -- Exclusão Lógica
 (4, 3, 1, 20, 'Aplicação de antibiótico inserida por engano', FALSE, TRUE);
 
-INSERT INTO ESCALA (id_escala, id_unidade, dia_semana, turno, id_residente, id_preceptor) VALUES
-(1, 1, 'Segunda', 'Manhã', 6, 11),
-(2, 2, 'Segunda', 'Tarde', 7, 12),
-(3, 3, 'Terça', 'Noite', 8, 13);
+INSERT INTO ESCALA (id_escala, id_unidade, dia_semana, turno, id_residente, id_preceptor, dia_plantao, mes_plantao, ano_plantao) VALUES
+(1, 1, 'Segunda', 'Manhã', 6, 11, 01, 12, 2025),
+(2, 2, 'Segunda', 'Tarde', 7, 12, 03, 09, 2025),
+(3, 3, 'Terça', 'Noite', 8, 13, 11, 06, 2026);
 
 -- Sincroniza o contador automático das tabelas com o maior ID que já existe na tabela
 SELECT setval(pg_get_serial_sequence('pessoa', 'id_pessoa'), max(id_pessoa))
