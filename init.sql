@@ -231,41 +231,52 @@ INSERT INTO PROCEDIMENTO (id_procedimento, codigo, nome, tempo_medio_minutos, ni
 (4, 'PROC04', 'Ressuscitação Cardiopulmonar', 60, 'ALTO'),
 (5, 'PROC05', 'Avaliação Clínica Básica', 30, 'BAIXO');
 
+
 INSERT INTO ATENDIMENTO (id_atendimento, data_hora, duracao_minutos, id_paciente, id_residente, id_preceptor) VALUES
 (1, '2023-10-01 08:00:00', 45, 1, 6, 11),
-(2, '2023-10-01 09:30:00', 30, 2, 7, 12),
-(3, '2023-10-02 10:15:00', 60, 3, 8, 13),
-(4, '2023-10-02 14:00:00', 20, 4, 9, 14),
-(5, '2023-10-03 16:45:00', 90, 5, 10, 15),
-(6, '2023-10-04 07:30:00', 15, 1, 7, 12),
-(7, '2023-10-04 11:00:00', 120, 2, 8, 13),
-(8, '2023-10-05 13:20:00', 40, 3, 6, 11),
-(9, '2023-10-06 15:10:00', 25, 4, 10, 15),
-(10, '2023-10-07 18:00:00', 55, 5, 9, 14);
+(2, '2023-10-01 09:30:00', 30, 2, 6, 11),
+(3, '2023-10-02 10:15:00', 60, 3, 6, 11),
+(4, '2023-10-02 14:00:00', 20, 4, 6, 11),
+(5, '2023-10-03 16:45:00', 90, 5, 7, 11),
+(6, '2023-10-04 07:30:00', 15, 1, 7, 11),
+(7, '2023-10-04 11:00:00', 120, 2, 7, 12),
+(8, '2023-10-05 13:20:00', 40, 3, 8, 12),
+(9, '2023-10-06 15:10:00', 25, 4, 8, 13),
+(10, '2023-10-07 18:00:00', 55, 5, 9, 13),
+(11, '2023-10-08 09:00:00', 30, 1, 10, 14),
+(12, '2023-10-09 10:00:00', 40, 2, 10, 14),
+(13, '2023-10-10 11:30:00', 20, 3, 10, 15),
+(14, '2023-10-11 14:20:00', 60, 4, 10, 15),
+(15, '2023-10-12 16:00:00', 45, 5, 10, 15);
 
-INSERT INTO PROCEDIMENTO_REALIZADO (id_atendimento, id_procedimento, quantidade, tempo_real_minutos, observacao, is_faturado, is_removido) values
 
--- Procedimentos normais (Ainda não faturados, não removidos)
+INSERT INTO PROCEDIMENTO_REALIZADO (id_atendimento, id_procedimento, quantidade, tempo_real_minutos, observacao, is_faturado, is_removido) VALUES
 (1, 5, 1, 35, 'Paciente colaborativo', FALSE, FALSE),
-(2, 5, 1, 30, 'Sem intercorrências', FALSE, FALSE),
-(3, 1, 2, 60, 'Sutura extensa no braço', FALSE, FALSE),
-(6, 2, 2, 15, 'Duas amostras coletadas', FALSE, FALSE),
-(7, 1, 1, 120, 'Cirurgia ambulatorial complexa', FALSE, FALSE),
-(8, 5, 1, 40, 'Revisão de exames', FALSE, FALSE),
-(9, 3, 1, 25, 'Medicação analgésica', FALSE, FALSE),
-(10, 5, 1, 55, 'Paciente apresentou leve febre', FALSE, FALSE),
+(2, 1, 1, 25, 'Sutura leve', FALSE, FALSE),
+(3, 2, 1, 15, 'Coleta rápida', FALSE, FALSE),
+(4, 3, 1, 20, 'Aplicação de medicação IV (ALTO)', TRUE, FALSE),
+(5, 4, 1, 70, 'RCP (ALTO)', FALSE, FALSE),
+(6, 5, 1, 20, 'Avaliação ok', FALSE, FALSE),
+(7, 1, 2, 90, 'Sutura dupla', FALSE, FALSE),
+(8, 2, 1, 10, 'Acesso difícil', FALSE, FALSE),
+(9, 3, 1, 20, 'Medicação IV (ALTO)', FALSE, FALSE),
+(10, 4, 1, 60, 'RCP (ALTO)', FALSE, FALSE),
+(11, 5, 1, 30, 'Rotina', FALSE, FALSE),
+(12, 1, 1, 35, 'Sutura perna', FALSE, FALSE),
+(13, 2, 1, 12, 'Coleta dupla', FALSE, TRUE),
+(14, 3, 1, 18, 'Medicação (ALTO)', FALSE, FALSE),
+(15, 4, 1, 55, 'RCP (ALTO)', FALSE, FALSE);
 
--- Procedimento já faturado
-(1, 2, 1, 10, 'Acesso venoso difícil', TRUE, FALSE),
-(5, 4, 1, 90, 'Manobra com sucesso após 1h', TRUE, FALSE),
-
--- Exclusão Lógica
-(4, 3, 1, 20, 'Aplicação de antibiótico inserida por engano', FALSE, TRUE);
 
 INSERT INTO ESCALA (id_escala, id_unidade, dia_semana, turno, id_residente, id_preceptor, dia_plantao, mes_plantao, ano_plantao) VALUES
 (1, 1, 'Segunda', 'Manhã', 6, 11, 01, 12, 2025),
 (2, 2, 'Segunda', 'Tarde', 7, 12, 03, 09, 2025),
-(3, 3, 'Terça', 'Noite', 8, 13, 11, 06, 2026);
+(3, 3, 'Terça', 'Noite', 8, 13, 11, 06, 2026),
+-- Plantões adicionados no mês atual da execução (07/2026)
+(4, 1, 'Segunda', 'Manhã', 6, 11, 06, 07, 2026),
+(5, 2, 'Terça', 'Tarde', 7, 12, 07, 07, 2026),
+(6, 1, 'Quarta', 'Noite', 6, 11, 08, 07, 2026),
+(7, 3, 'Quinta', 'Manhã', 10, 15, 09, 07, 2026);
 
 -- Sincroniza o contador automático das tabelas com o maior ID que já existe na tabela
 SELECT setval(pg_get_serial_sequence('pessoa', 'id_pessoa'), max(id_pessoa))
