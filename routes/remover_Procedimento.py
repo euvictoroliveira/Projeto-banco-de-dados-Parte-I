@@ -18,7 +18,6 @@ def remover_procedimento():
     try:
         database.conexao.rollback()
 
-        # SE O USUÁRIO CLICOU EM EXCLUIR
         if request.method == 'POST' and id_procedimento and id_atendimento:
             # 1. Verifica se o procedimento já foi faturado na tabela "procedimento_realizado"
             cursor.execute("""
@@ -33,7 +32,7 @@ def remover_procedimento():
                 feedback = "Erro: Este procedimento já foi faturado e não pode ser removido."
             else:
                 # 2. Executa a exclusão lógica (definindo is_removido como TRUE) ou física.
-                # Como seu banco possui 'is_removido', vamos marcar como TRUE:
+               
                 cursor.execute("""
                     UPDATE procedimento_realizado 
                     SET is_removido = TRUE 
@@ -45,7 +44,7 @@ def remover_procedimento():
 
         # SE TEMOS UM ATENDIMENTO SENDO CONSULTADO/REMOVIDO
         if id_atendimento:
-            # Busca os dados do cabeçalho do Atendimento
+            
             cursor.execute("""
                 SELECT a.id_atendimento, p_pac.nome, p_prec.nome, p_res.nome 
                 FROM atendimento a
@@ -58,7 +57,7 @@ def remover_procedimento():
 
             if dados_atendimento:
                 # Busca os procedimentos vinculados na tabela "procedimento_realizado"
-                # (Apenas os que não foram removidos logicamente)
+                
                 cursor.execute("""
                     SELECT pr.id_procedimento, pr.nome, pr_real.quantidade, 
                            pr_real.tempo_real_minutos, pr_real.observacao, pr_real.is_faturado
