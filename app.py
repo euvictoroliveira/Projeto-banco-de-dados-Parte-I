@@ -9,6 +9,8 @@ from routes.estatisticas import estatisticas_bp
 
 from routes.paciente import atualizar_paciente_bp, listar_pacientes_sem_alto_bp
 
+from routes.remover_Procedimento import remover_procedimento_bp
+
 app = Flask(__name__)
 
 #
@@ -20,6 +22,7 @@ app.register_blueprint(listar_procedimentos_bp)
 app.register_blueprint(atualizar_paciente_bp)
 app.register_blueprint(listar_pacientes_sem_alto_bp)
 app.register_blueprint(estatisticas_bp)
+app.register_blueprint(remover_procedimento_bp)
 
 @app.route('/')
 def index():

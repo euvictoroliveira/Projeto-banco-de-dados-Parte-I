@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Dra. Yuska - Procedimentos</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 40px; 
+            background-color: #f5f7fb; 
+            color: #333; 
+        }
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50; 
+            border-bottom: 2px solid #3498db; 
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            font-size: 1.25em;
+            margin-top: 20px;
+        }
+        table {
+            border-collapse: collapse; 
+            width: 100%; 
+            margin-top: 20px; 
+            background: #fff;
+        }
+        th, td {
+            border: 1px solid #e0e0e0; 
+            padding: 12px; 
+            text-align: left;
+        }
+        th {
+            background-color: #34495e; 
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .btn-voltar {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            background-color: #7f8c8d;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .btn-voltar:hover { 
+            background-color: #95a5a6;
+        }
+        /* Estilos dos alertas seguindo seu padrão de cores */
+        .alerta {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .alerta-erro {
+            background-color: #fadbd8;
+            color: #c0392b;
+            border: 1px solid #f5b7b1;
+        }
+        .alerta-sucesso {
+            background-color: #d4efdf;
+            color: #27ae60;
+            border: 1px solid #a9dfbf;
+        }
+        /* Botão estilizado para remoção */
+        .btn-remover {
+            padding: 6px 12px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-remover:hover {
+            background: #c0392b;
+        }
+        .texto-faturado {
+            color: #e67e22;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="/" class="btn-voltar">⬅ Voltar ao Menu</a>
+
+    <h1>Gestão Hospitalar - Dra. Yuska</h1>
+    <h2>Remover Procedimento de Atendimento</h2>
+
+    <!-- Bloco de feedback para exibir mensagens de sucesso ou erro -->
+    {% if feedback %}
+        {% if 'Erro' in feedback %}
+            <div class="alerta alerta-erro">
+                ⚠ {{ feedback }}
+            </div>
+        {% else %}
+            <div class="alerta alerta-sucesso">
+                ✔ {{ feedback }}
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <!-- Formulário de busca por ID do Atendimento -->
+    <div style="background: #ecf0f1; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <form action="/remover_procedimento" method="GET">
+
+            <label for="id_atendimento" style="font-weight: bold;">Buscar Atendimento por ID:</label>
+
+            <!-- Ajustado name e value para baterem 100% com o Python e Banco -->
+            <input type="text" id="id_atendimento" name="id_atendimento" placeholder="Digite o ID do atendimento" 
+                   value="{{ id_atendimento_buscado if id_atendimento_buscado else '' }}" 
+                   style="padding: 8px; border: 1px solid #bdc3c7; border-radius: 4px;" required>
+
+            <button type="submit" style="padding: 8px 15px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Carregar</button>
+
+        </form>
+    </div>
+
+    <!-- Só exibe os dados se o atendimento for encontrado -->
+    {% if dados_atendimento %}
+    <div style="background: #fff; border-left: 4px solid #3498db; padding: 15px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <p style="margin: 3px 0;"><strong>Atendimento Nº:</strong> {{ dados_atendimento[0] }}</p>
+        <p style="margin: 3px 0;"><strong>Paciente:</strong> {{ dados_atendimento[1] }}</p>
+        <p style="margin: 3px 0;"><strong>Preceptor:</strong> {{ dados_atendimento[2] }}</p>
+        <p style="margin: 3px 0;"><strong>Residente:</strong> {{ dados_atendimento[3] }}</p>
+    </div>
+
+    <table>
+        <tr>
+            <th>Procedimento</th>
+            <th>Qtd</th>
+            <th>Duração Real (min)</th>
+            <th>Observação</th>
+            <th style="text-align: center;">Ação</th>
+        </tr>
+
+        {% for proc in lista_procedimentos %}
+        <tr>
+            <td>{{ proc[1] }}</td> <!-- Nome do procedimento -->
+            <td>{{ proc[2] }}</td> <!-- Quantidade -->
+            <td>{{ proc[3] }}</td> <!-- Duração Real -->
+            <td>{{ proc[4] if proc[4] else 'Nenhuma.' }}</td> <!-- Observação -->
+            <td style="text-align: center;">
+                {% if proc[5] %} <!-- is_faturado -->
+                    <span class="texto-faturado">🔒 Faturado</span>
+                {% else %}
+                    <!-- Formulário de exclusão seguro enviando POST de volta para a mesma página -->
+                    <form action="/remover_procedimento" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este procedimento?');" style="display: inline;">
+                        <input type="hidden" name="acao" value="remover">
+                        <!-- Ajustado inputs hidden para usar "id_atendimento" e "id_procedimento" -->
+                        <input type="hidden" name="id_atendimento" value="{{ dados_atendimento[0] }}">
+                        <input type="hidden" name="id_procedimento" value="{{ proc[0] }}">
+                        <button type="submit" class="btn-remover">Remover</button>
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5" style="text-align: center; color: #7f8c8d;">Nenhum procedimento associado a este atendimento.</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+</div>
+
+</body>
+</html>
