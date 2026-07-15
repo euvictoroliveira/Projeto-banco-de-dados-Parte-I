@@ -5,16 +5,37 @@ Repositório voltado para as implementações relacionadas à primeira parte do 
 
 ```
 Projeto-banco-de-dados-Parte-I/
-├── app.py                # Arquivo principal da aplicação Flask
-├── database.py           # Configuração e conexão com o banco de dados
-├── requirements.txt      # Dependências do projeto
-├── init.sql            # Script de criação e população do banco de dados
-├── README.md             # Este arquivo
-├── templates/            # Pasta com os templates HTML
-│   ├── index.html        # Página inicial com menu principal
-│   └── atendimento.html  # Página de listagem de atendimentos
-└── routes/               # Pasta com as rotas da aplicação
-    └── atendimento.py    # Blueprint para rotas de atendimento
+├── app.py                                # Arquivo principal da aplicação Flask (rota '/' e registro dos blueprints)
+├── database.py                           # Configuração e conexão com o banco de dados
+├── requirements.txt                      # Dependências do projeto
+├── init.sql                              # Script de criação e população do banco de dados
+├── README.md                             # Este arquivo
+├── .gitignore
+├── static/
+│   └── style.css                         # Estilos compartilhados por todos os templates
+├── templates/                            # Pasta com os templates HTML
+│   ├── index.html                        # Página inicial com menu principal
+│   ├── listar_atendimento.html           # Listagem de atendimentos (com busca por CPF)
+│   ├── novo_atendimento.html             # Cadastro de novo atendimento
+│   ├── listar_procedimentos.html         # Procedimentos realizados em um atendimento
+│   ├── remover_procedimento.html         # Remoção de procedimento realizado
+│   ├── atualizar_paciente.html           # Atualização de dados/endereço do paciente
+│   ├── pacientes_sem_alto.html           # Pacientes sem procedimentos de risco ALTO
+│   ├── estatisticas.html                 # Ranking de residentes, preceptores e plantões
+│   └── tempo_medio_residentes.html       # Tempo médio de duração dos atendimentos por residente
+├── routes/                               # Pasta com as rotas (blueprints) da aplicação
+│   ├── atendimento.py                    # Blueprints de atendimentos, novo atendimento e procedimentos
+│   ├── paciente.py                       # Blueprints de atualização de paciente e pacientes sem alto risco
+│   ├── remover_Procedimento.py           # Blueprint de remoção de procedimento realizado
+│   └── estatisticas.py                   # Blueprint das consultas analíticas/estatísticas
+├── include/
+│   └── verify.py                         # Validação de CPF, usada pelas rotas
+└── docs/                                 # Documentação de modelagem entregue na Etapa 1
+    ├── modelo entidade-relacionamento/
+    │   └── Relatorio MER.pdf
+    └── diagrama entidade-relacionamento/
+        ├── diagrama ER.pdf
+        └── Relatorio ER.pdf
 ```
 
 ## Instruções para instalação e execução dos scripts
