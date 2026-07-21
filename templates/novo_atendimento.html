@@ -47,6 +47,14 @@
 
             <input type="text" id="residente" name="residente" placeholder="insira o CRM">
 
+            <label for="id_unidade">Unidade:</label>
+
+            <select id="id_unidade" name="id_unidade">
+                {% for id_unidade, nome in unidades %}
+                <option value="{{id_unidade}}">{{ nome }}</option>
+                {% endfor %}
+            </select>
+
             <button type="submit">Enviar</button>
 
         </form>

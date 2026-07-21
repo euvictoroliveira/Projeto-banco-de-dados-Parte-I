@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS escala CASCADE;
 DROP TABLE IF EXISTS atendimento CASCADE;
 DROP TABLE IF EXISTS procedimento CASCADE;
 DROP TABLE IF EXISTS unidade CASCADE;
-DROP TABLE IF EXISTS residente CASCADE;
+DROP TABLE IF EXISTS residente cascade;
 DROP TABLE IF EXISTS preceptor CASCADE;
 DROP TABLE IF EXISTS profissional CASCADE;
 DROP TABLE IF EXISTS paciente CASCADE;
@@ -80,7 +80,8 @@ CREATE TABLE unidade (
     id_unidade SERIAL PRIMARY KEY NOT NULL,
     nome VARCHAR(100) NOT NULL,
     tipo VARCHAR(50) NOT NULL,
-    capacidade_leitos INTEGER NOT NULL
+    capacidade_leitos INTEGER NOT null,
+    tempo_medio_espera_minutos NUMERIC(10,2) default 0
 );
 
 -- Cria a tabela de procedimento
@@ -100,7 +101,8 @@ CREATE TABLE atendimento (
     duracao_minutos INTEGER NOT NULL,
     id_paciente INTEGER NOT NULL,
     id_residente INTEGER NOT NULL,
-    id_preceptor INTEGER NOT NULL
+    id_preceptor INTEGER NOT null,
+    id_unidade INTEGER not NULL
 );
 
 -- Cria a tabela de escala
@@ -125,6 +127,7 @@ CREATE TABLE procedimento_realizado (
     observacao VARCHAR(200) NOT NULL,
     is_faturado BOOLEAN DEFAULT FALSE,
     is_removido BOOLEAN DEFAULT FALSE,
+    data_hora_inicio TIMESTAMP,
     PRIMARY KEY (id_atendimento, id_procedimento)
 );
 
@@ -138,6 +141,7 @@ ALTER TABLE residente ADD CONSTRAINT fk_residente_profissional FOREIGN KEY (id_p
 ALTER TABLE atendimento ADD CONSTRAINT fk_atendimento_paciente FOREIGN KEY (id_paciente) REFERENCES paciente(id_pessoa);
 ALTER TABLE atendimento ADD CONSTRAINT fk_atendimento_residente FOREIGN KEY (id_residente) REFERENCES residente(id_profissional); 
 ALTER TABLE atendimento ADD CONSTRAINT fk_atendimento_preceptor FOREIGN KEY (id_preceptor) REFERENCES preceptor(id_profissional);
+ALTER TABLE atendimento ADD CONSTRAINT fk_atendimento_unidade FOREIGN KEY (id_unidade) REFERENCES unidade(id_unidade);
 
 -- Estabelece relacionamentos da tabela de escala
 ALTER TABLE escala ADD CONSTRAINT fk_escala_unidade FOREIGN KEY (id_unidade) REFERENCES unidade(id_unidade);
@@ -232,40 +236,40 @@ INSERT INTO PROCEDIMENTO (id_procedimento, codigo, nome, tempo_medio_minutos, ni
 (5, 'PROC05', 'Avaliação Clínica Básica', 30, 'BAIXO');
 
 
-INSERT INTO ATENDIMENTO (id_atendimento, data_hora, duracao_minutos, id_paciente, id_residente, id_preceptor) VALUES
-(1, '2023-10-01 08:00:00', 45, 1, 6, 11),
-(2, '2023-10-01 09:30:00', 30, 2, 6, 11),
-(3, '2023-10-02 10:15:00', 60, 3, 6, 11),
-(4, '2023-10-02 14:00:00', 20, 4, 6, 11),
-(5, '2023-10-03 16:45:00', 90, 5, 7, 11),
-(6, '2023-10-04 07:30:00', 15, 1, 7, 11),
-(7, '2023-10-04 11:00:00', 120, 2, 7, 12),
-(8, '2023-10-05 13:20:00', 40, 3, 8, 12),
-(9, '2023-10-06 15:10:00', 25, 4, 8, 13),
-(10, '2023-10-07 18:00:00', 55, 5, 9, 13),
-(11, '2023-10-08 09:00:00', 30, 1, 10, 14),
-(12, '2023-10-09 10:00:00', 40, 2, 10, 14),
-(13, '2023-10-10 11:30:00', 20, 3, 10, 15),
-(14, '2023-10-11 14:20:00', 60, 4, 10, 15),
-(15, '2023-10-12 16:00:00', 45, 5, 10, 15);
+INSERT INTO ATENDIMENTO (id_atendimento, data_hora, duracao_minutos, id_paciente, id_residente, id_preceptor, id_unidade) VALUES
+(1, '2023-10-01 08:00:00', 45, 1, 6, 11, 1),
+(2, '2023-10-01 09:30:00', 30, 2, 6, 11, 2),
+(3, '2023-10-02 10:15:00', 60, 3, 6, 11, 3),
+(4, '2023-10-02 14:00:00', 20, 4, 6, 11, 1),
+(5, '2023-10-03 16:45:00', 90, 5, 7, 11, 2),
+(6, '2023-10-04 07:30:00', 15, 1, 7, 11, 3),
+(7, '2023-10-04 11:00:00', 120, 2, 7, 12, 1),
+(8, '2023-10-05 13:20:00', 40, 3, 8, 12, 2),
+(9, '2023-10-06 15:10:00', 25, 4, 8, 13, 3),
+(10, '2023-10-07 18:00:00', 55, 5, 9, 13, 1),
+(11, '2023-10-08 09:00:00', 30, 1, 10, 14, 2),
+(12, '2023-10-09 10:00:00', 40, 2, 10, 14, 3),
+(13, '2023-10-10 11:30:00', 20, 3, 10, 15, 1),
+(14, '2023-10-11 14:20:00', 60, 4, 10, 15, 2),
+(15, '2023-10-12 16:00:00', 45, 5, 10, 15, 3);
 
 
-INSERT INTO PROCEDIMENTO_REALIZADO (id_atendimento, id_procedimento, quantidade, tempo_real_minutos, observacao, is_faturado, is_removido) VALUES
-(1, 5, 1, 35, 'Paciente colaborativo', FALSE, FALSE),
-(2, 1, 1, 25, 'Sutura leve', FALSE, FALSE),
-(3, 2, 1, 15, 'Coleta rápida', FALSE, FALSE),
-(4, 3, 1, 20, 'Aplicação de medicação IV (ALTO)', TRUE, FALSE),
-(5, 4, 1, 70, 'RCP (ALTO)', FALSE, FALSE),
-(6, 5, 1, 20, 'Avaliação ok', FALSE, FALSE),
-(7, 1, 2, 90, 'Sutura dupla', FALSE, FALSE),
-(8, 2, 1, 10, 'Acesso difícil', FALSE, FALSE),
-(9, 3, 1, 20, 'Medicação IV (ALTO)', FALSE, FALSE),
-(10, 4, 1, 60, 'RCP (ALTO)', FALSE, FALSE),
-(11, 5, 1, 30, 'Rotina', FALSE, FALSE),
-(12, 1, 1, 35, 'Sutura perna', FALSE, FALSE),
-(13, 2, 1, 12, 'Coleta dupla', FALSE, TRUE),
-(14, 3, 1, 18, 'Medicação (ALTO)', FALSE, FALSE),
-(15, 4, 1, 55, 'RCP (ALTO)', FALSE, FALSE);
+INSERT INTO PROCEDIMENTO_REALIZADO (id_atendimento, id_procedimento, quantidade, tempo_real_minutos, observacao, is_faturado, is_removido, data_hora_inicio) VALUES
+(1, 5, 1, 35, 'Paciente colaborativo', FALSE, FALSE, '2023-10-01 08:15:00'),
+(2, 1, 1, 25, 'Sutura leve', FALSE, FALSE, '2023-10-01 09:40:00'),
+(3, 2, 1, 15, 'Coleta rápida', FALSE, FALSE, '2023-10-02 10:30:00'),
+(4, 3, 1, 20, 'Aplicação de medicação IV (ALTO)', TRUE, FALSE, '2023-10-02 14:10:00'),
+(5, 4, 1, 70, 'RCP (ALTO)', FALSE, FALSE, '2023-10-03 16:50:00'),
+(6, 5, 1, 20, 'Avaliação ok', FALSE, FALSE, '2023-10-04 07:45:00'),
+(7, 1, 2, 90, 'Sutura dupla', FALSE, FALSE, '2023-10-04 11:20:00'),
+(8, 2, 1, 10, 'Acesso difícil', FALSE, FALSE, '2023-10-05 13:40:00'),
+(9, 3, 1, 20, 'Medicação IV (ALTO)', FALSE, FALSE, '2023-10-06 15:25:00'),
+(10, 4, 1, 60, 'RCP (ALTO)', FALSE, FALSE, '2023-10-07 18:15:00'),
+(11, 5, 1, 30, 'Rotina', FALSE, FALSE, '2023-10-08 09:10:00'),
+(12, 1, 1, 35, 'Sutura perna', FALSE, FALSE, '2023-10-09 10:20:00'),
+(13, 2, 1, 12, 'Coleta dupla', FALSE, TRUE, '2023-10-10 11:35:00'),
+(14, 3, 1, 18, 'Medicação (ALTO)', FALSE, FALSE, '2023-10-11 14:35:00'),
+(15, 4, 1, 55, 'RCP (ALTO)', FALSE, FALSE, '2023-10-12 16:15:00');
 
 
 INSERT INTO ESCALA (id_escala, id_unidade, dia_semana, turno, id_residente, id_preceptor, dia_plantao, mes_plantao, ano_plantao) VALUES
@@ -296,3 +300,33 @@ FROM unidade;
 
 SELECT setval(pg_get_serial_sequence('alergia', 'id_alergia'), max(id_alergia)) 
 FROM alergia;
+
+-- Procedures
+CREATE OR REPLACE PROCEDURE sp_calcular_tempo_medio_espera()
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Atualiza a coluna tempo_medio_espera_minutos da tabela unidade
+    UPDATE unidade u
+    SET tempo_medio_espera_minutos = calc.tempo_medio
+    FROM (
+        -- Subquery: Calcula a média de tempo por unidade
+        SELECT 
+            a.id_unidade,
+            ROUND(AVG(EXTRACT(EPOCH FROM (pr.data_hora_inicio - a.data_hora)) / 60)::NUMERIC, 2) AS tempo_medio
+        FROM atendimento a
+        INNER JOIN (
+            -- Pega apenas o horário do PRIMEIRO procedimento de cada atendimento
+            SELECT id_atendimento, MIN(data_hora_inicio) as data_hora_inicio
+            FROM procedimento_realizado
+            GROUP BY id_atendimento
+        ) pr ON a.id_atendimento = pr.id_atendimento
+        GROUP BY a.id_unidade
+    ) calc
+    -- Condição de junção do UPDATE
+    WHERE u.id_unidade = calc.id_unidade;
+    
+    -- Levanta um aviso no console de que a rotina terminou com sucesso
+    RAISE NOTICE 'Tempos médios de espera recalculados e atualizados nas unidades com sucesso.';
+END;
+$$;

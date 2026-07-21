@@ -58,13 +58,32 @@ def listar_atendimento():
 
 
 #
+# Método para buscar as unidades e popular o dropdown
+#
+def get_lista_unidade():
+    cursor = database.conexao.cursor()
+
+    consulta = """
+        select u.id_unidade, u.nome
+        from unidade u
+    """
+
+    cursor.execute(consulta)
+    resultado = cursor.fetchall()
+
+    return resultado
+
+#
 # Método para criar um novo atendimento
 #
 @novo_atendimento_bp.route('/novo_atendimento', methods=['GET','POST'])
 def novo_atendimento():
     
+    lista_unidades = get_lista_unidade()
+
     if request.method == 'GET':
-        return render_template("novo_atendimento.html")
+
+        return render_template("novo_atendimento.html", unidades=lista_unidades)
 
     else:
         paciente_cpf = request.form.get('cpf')
@@ -72,6 +91,7 @@ def novo_atendimento():
         residente_crm = request.form.get('residente')
         duracao = request.form.get('duracao')
         data_hora = time.strftime('%Y-%m-%d %H:%M:%S')
+        id_unidade = request.form.get('id_unidade')
 
         # Realiza a validação do cpf
         if not validar_cpf(paciente_cpf):
@@ -117,10 +137,10 @@ def novo_atendimento():
 
                     consulta_insert = """
                         INSERT INTO ATENDIMENTO 
-                        (data_hora, duracao_minutos, id_paciente, id_residente, id_preceptor) 
-                        VALUES (%s, %s, %s, %s, %s);
+                        (data_hora, duracao_minutos, id_paciente, id_residente, id_preceptor, id_unidade) 
+                        VALUES (%s, %s, %s, %s, %s, %s);
                     """
-                    cursor.execute(consulta_insert, (data_hora, duracao, id_pac, id_res, id_prec))
+                    cursor.execute(consulta_insert, (data_hora, duracao, id_pac, id_res, id_prec, id_unidade))
                     database.conexao.commit()
                     
                     mensagem_erro = "Atendimento registrado com sucesso!"
@@ -136,7 +156,7 @@ def novo_atendimento():
         else:
             mensagem_erro = "Preencha todos os campos."
             
-        return render_template("novo_atendimento.html", feedback=mensagem_erro)
+        return render_template("novo_atendimento.html", unidades=lista_unidades, feedback=mensagem_erro)
 
 
 #
