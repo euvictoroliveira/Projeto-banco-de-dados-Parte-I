@@ -14,10 +14,10 @@ def get_ranking_residentes():
     cursor = database.conexao.cursor()
 
     consulta = """
-        SELECT p.nome, count(*)
+        SELECT p.nome, count(a.id_atendimento)
         FROM residente r
-        INNER JOIN pessoa p ON p.id_pessoa  = r.id_profissional
-        inner join atendimento a on a.id_residente = r.id_profissional
+        left JOIN pessoa p ON p.id_pessoa  = r.id_profissional
+        left join atendimento a on a.id_residente = r.id_profissional
         group by p.id_pessoa, p.nome 
         order by count(*) desc
     """
@@ -35,8 +35,8 @@ def get_preceptores_mais_de_5_atendimentos(ano, mes):
     consulta = """
         SELECT p.nome, count(*)
         FROM preceptor pr
-        INNER JOIN pessoa p ON p.id_pessoa = pr.id_profissional
-        INNER JOIN atendimento a ON a.id_preceptor = pr.id_profissional
+        left JOIN pessoa p ON p.id_pessoa = pr.id_profissional
+        left JOIN atendimento a ON a.id_preceptor = pr.id_profissional
         WHERE EXTRACT(YEAR FROM a.data_hora) = %s
           AND EXTRACT(MONTH FROM a.data_hora) = %s
         GROUP BY p.id_pessoa, p.nome
@@ -74,11 +74,10 @@ def get_plantoes_por_unidade(ano, mes, id_residente=None):
     cursor = database.conexao.cursor()
 
     consulta = """
-        SELECT u.nome, count(*)
-        FROM escala e
-        INNER JOIN unidade u ON u.id_unidade = e.id_unidade
-        WHERE e.mes_plantao = %s
-          AND e.ano_plantao = %s
+        SELECT u.nome, count(e.id_escala)
+        FROM unidade u
+        left JOIN escala e ON u.id_unidade = e.id_unidade 
+                            AND e.mes_plantao = %s AND e.ano_plantao = %s
     """
     parametros = [mes, ano]
 
@@ -156,13 +155,13 @@ def tempo_medio_residentes():
     consulta = """
         SELECT
             p.nome,
-            ROUND(AVG(a.duracao_minutos), 2) AS tempo_medio
-        FROM atendimento a
-        INNER JOIN residente r
+            COALESCE(ROUND(AVG(a.duracao_minutos), 2), 0) AS tempo_medio
+        FROM residente r
+        left JOIN atendimento a
             ON r.id_profissional = a.id_residente
-        INNER JOIN profissional prof
+        left JOIN profissional prof
             ON prof.id_pessoa = r.id_profissional
-        INNER JOIN pessoa p
+        left JOIN pessoa p
             ON p.id_pessoa = prof.id_pessoa
         GROUP BY p.nome
         ORDER BY p.nome;
