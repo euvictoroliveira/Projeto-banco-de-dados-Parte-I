@@ -9,8 +9,8 @@ DROP TABLE IF EXISTS preceptor CASCADE;
 DROP TABLE IF EXISTS profissional CASCADE;
 DROP TABLE IF EXISTS paciente CASCADE;
 DROP TABLE IF EXISTS pessoa CASCADE;
-drop table if exists alergia cascade;
-drop table if exists paciente_tem_alergia cascade;
+drop table if exists alergia CASCADE;
+drop table if exists paciente_tem_alergia CASCADE;
 
 -- Cria a tabela pessoa
 -- Atributos: ID(chave primária), nome, cpf, data de nascimento, is_flamengo, telefone e endereço
@@ -41,7 +41,7 @@ CREATE TABLE paciente (
 CREATE TABLE alergia (
     id_alergia SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL UNIQUE,
-    gravidade VARCHAR(20) not null
+    gravidade VARCHAR(20) not NULL
 );
 
 CREATE TABLE paciente_tem_alergia (
@@ -80,7 +80,7 @@ CREATE TABLE unidade (
     id_unidade SERIAL PRIMARY KEY NOT NULL,
     nome VARCHAR(100) NOT NULL,
     tipo VARCHAR(50) NOT NULL,
-    capacidade_leitos INTEGER NOT null,
+    capacidade_leitos INTEGER NOT NULL,
     tempo_medio_espera_minutos NUMERIC(10,2) default 0
 );
 
@@ -90,7 +90,7 @@ CREATE TABLE procedimento (
     id_procedimento SERIAL PRIMARY KEY,
     codigo VARCHAR(6) NOT NULL UNIQUE,
     nome VARCHAR(100) NOT NULL,
-    tempo_medio_minutos INTEGER NOT null,
+    tempo_medio_minutos INTEGER NOT NULL,
     nivel_risco VARCHAR(20) DEFAULT 'BAIXO'
 );
 
@@ -101,7 +101,7 @@ CREATE TABLE atendimento (
     duracao_minutos INTEGER NOT NULL,
     id_paciente INTEGER NOT NULL,
     id_residente INTEGER NOT NULL,
-    id_preceptor INTEGER NOT null,
+    id_preceptor INTEGER NOT NULL,
     id_unidade INTEGER not NULL
 );
 
@@ -301,7 +301,9 @@ FROM unidade;
 SELECT setval(pg_get_serial_sequence('alergia', 'id_alergia'), max(id_alergia)) 
 FROM alergia;
 
--- Procedures
+-- procedures:
+
+-- Procedure para tempo médio de espera 
 CREATE OR REPLACE PROCEDURE sp_calcular_tempo_medio_espera()
 LANGUAGE plpgsql
 AS $$
@@ -328,5 +330,65 @@ BEGIN
     
     -- Levanta um aviso no console de que a rotina terminou com sucesso
     RAISE NOTICE 'Tempos médios de espera recalculados e atualizados nas unidades com sucesso.';
+END;
+$$;
+
+-- Procedure para reajustar escala
+CREATE OR REPLACE PROCEDURE sp_reajustar_escala(
+    p_id_residente INTEGER,
+    p_dia_atual VARCHAR,
+    p_turno_atual VARCHAR,
+    p_dia_novo VARCHAR,
+    p_turno_novo VARCHAR,
+    -- obs: estou deixando a saída com um RAISE NOTE para confirmar o que rodou, porém
+    --      tem a opção de fazer com que a rota do flask mostre na tela uma saída
+    --      (ex: 3 escalas foram atualizadas e 1 foi pulada por presença de conflito)!
+    --      portantanto, fica à decisão quando for pensado sobre a construção da interface.
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    -- para guardar a escala da vez enquanto o cursor percorre 
+    r_escala RECORD;
+
+    v_conflito BOOLEAN;
+    v_atualizadas INTEGER := 0;
+    v_puladas INTEGER := 0;
+BEGIN
+    -- percorre todas as escalas do residente que estão no dia e turno atuais
+    FOR r_escala IN
+        SELECT id_escala, id_unidade 
+        FROM escala 
+        WHERE id_residente = p_id_residente
+        AND dia_semana = p_dia_atual
+        AND turno = p_turno_atual
+
+    LOOP
+        -- checando conflito se existe outra escala do residente na mesma unidade, 
+        -- no dia e turno de destino
+        SELECT EXISTS (
+            SELECT 1
+            FROM escala
+            WHERE id_unidade = r_escala.id_unidade
+            AND dia_semana = p_dia_novo
+            AND turno = p_turno_novo
+            AND id_residente = p_id_residente
+            AND id_escala <> r_escala.id_escala
+        ) INTO v_conflito;
+
+        IF v_conflito THEN
+            v_puladas := v_puladas + 1;
+        ELSE
+            UPDATE escala
+            SET dia_semana = p_dia_semana, turno = p_turno_novo
+            WHERE id_escala = r_escala.id_escala;
+
+            v_atualizadas := v_atualizadas + 1;
+        END IF
+    END LOOP
+
+    RAISE NOTICE 'As escalas do residente % foram reajustadas: % atualizada(s) e % mantida(s)',
+        p_id_residente, v_atualizadas, v_puladas;
+        
 END;
 $$;
