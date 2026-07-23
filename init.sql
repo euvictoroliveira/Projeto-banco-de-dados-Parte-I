@@ -339,11 +339,7 @@ CREATE OR REPLACE PROCEDURE sp_reajustar_escala(
     p_dia_atual VARCHAR,
     p_turno_atual VARCHAR,
     p_dia_novo VARCHAR,
-    p_turno_novo VARCHAR,
-    -- obs: estou deixando a saída com um RAISE NOTE para confirmar o que rodou, porém
-    --      tem a opção de fazer com que a rota do flask mostre na tela uma saída
-    --      (ex: 3 escalas foram atualizadas e 1 foi pulada por presença de conflito)!
-    --      portantanto, fica à decisão quando for pensado sobre a construção da interface.
+    p_turno_novo VARCHAR
 )
 LANGUAGE plpgsql
 AS $$
@@ -362,7 +358,6 @@ BEGIN
         WHERE id_residente = p_id_residente
         AND dia_semana = p_dia_atual
         AND turno = p_turno_atual
-
     LOOP
         -- checando conflito se existe outra escala do residente na mesma unidade, 
         -- no dia e turno de destino
@@ -380,12 +375,18 @@ BEGIN
             v_puladas := v_puladas + 1;
         ELSE
             UPDATE escala
-            SET dia_semana = p_dia_semana, turno = p_turno_novo
+            SET dia_semana = p_dia_novo, 
+                turno = p_turno_novo
             WHERE id_escala = r_escala.id_escala;
 
             v_atualizadas := v_atualizadas + 1;
-        END IF
-    END LOOP
+        END IF; 
+    END LOOP; 
+
+    -- obs: estou deixando a saída com um RAISE NOTE para confirmar o que rodou, porém
+    --      tem a opção de fazer com que a rota do flask mostre na tela uma saída
+    --      (ex: 3 escalas foram atualizadas e 1 foi pulada por presença de conflito)!
+    --      portantanto, fica à decisão quando for pensado sobre a construção da interface.
 
     RAISE NOTICE 'As escalas do residente % foram reajustadas: % atualizada(s) e % mantida(s)',
         p_id_residente, v_atualizadas, v_puladas;
