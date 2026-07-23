@@ -393,3 +393,31 @@ BEGIN
         
 END;
 $$;
+
+-- Functions:
+
+-- Function para atualizar o tempo medio dos procedimentos
+-- Foi preferido function ao invés de procedure pois é possível fazer os updates de forma direcionada
+CREATE OR REPLACE FUNCTION fn_atualiza_media_procedimentos()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Recalcula a média e atualiza na tabela procedimento
+    UPDATE procedimento
+    SET tempo_medio_minutos = (
+        -- Verifica qual é a media em minutos daquele procedimento em específico
+        SELECT COALESCE(ROUND(AVG(tempo_real_minutos)::NUMERIC, 2), 0)
+        FROM procedimento_realizado
+        WHERE id_procedimento = NEW.id_procedimento
+    )
+    WHERE id_procedimento = NEW.id_procedimento;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Triggers
+
+CREATE TRIGGER trg_atualiza_media_procedimentos
+AFTER INSERT ON procedimento_realizado
+FOR EACH ROW
+EXECUTE FUNCTION fn_atualiza_media_procedimentos();
