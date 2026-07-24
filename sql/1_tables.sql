@@ -128,8 +128,19 @@ CREATE TABLE procedimento_realizado (
     is_faturado BOOLEAN DEFAULT FALSE,
     is_removido BOOLEAN DEFAULT FALSE,
     data_hora_inicio TIMESTAMP,
+    
     PRIMARY KEY (id_atendimento, id_procedimento)
 );
+
+-- Cria a tabela para internação
+create table internacao (
+	id_internacao SERIAL primary key,
+	id_paciente INTEGER not null,
+	id_unidade INTEGER not null,
+	data_hora_entrada TIMESTAMP not null default NOW(),
+	data_hora_saida TIMESTAMP not null default NULL
+);
+
 
 -- CRIA RELACIONAMENTOS
 ALTER TABLE paciente ADD CONSTRAINT fk_paciente_pessoa FOREIGN KEY (id_pessoa) REFERENCES pessoa(id_pessoa); -- Paciente é uma pessoa
@@ -154,3 +165,6 @@ ALTER TABLE procedimento_realizado ADD CONSTRAINT fk_procedimento_realizado_proc
 
 alter table paciente_tem_alergia add CONSTRAINT fk_pta_paciente FOREIGN KEY (id_paciente) REFERENCES paciente(id_pessoa);
 alter table paciente_tem_alergia add CONSTRAINT fk_pta_alergia FOREIGN KEY (id_alergia) REFERENCES alergia(id_alergia);
+
+alter table internacao add CONSTRAINT fk_internacao_paciente FOREIGN KEY (id_paciente) REFERENCES paciente(id_pessoa);
+alter table internacao add CONSTRAINT fk_internacao_unidade FOREIGN KEY (id_unidade) REFERENCES unidade(id_unidade);
