@@ -69,7 +69,7 @@ createdb -U postgres projeto_hospital
 
 4.2 Execute o script SQL para criar as tabelas e popular com dados
 ```bash
-psql -U postgres -d projeto_hospital < init.sql
+psql -U postgres -d projeto_hospital < ./sql/init.sql
 ```
 Em "Senha para o usuário postgres:" apenas confirme, não precisa inserir senha
 
