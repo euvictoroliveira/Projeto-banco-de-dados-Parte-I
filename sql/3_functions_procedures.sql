@@ -57,6 +57,16 @@ BEGIN
         AND dia_semana = p_dia_atual
         AND turno = p_turno_atual
     LOOP
+        -- data completa do plantão
+        v_data_plantao := MAKE_DATE(r_escala.ano_plantao, r_escala.mes_plantao, r_escala.dia_plantao);
+
+        -- checando se o plantão já ocorreu
+        if v_data_plantao < CURRENT_DATE THEN
+            v_puladas := v_puladas + 1;
+            RAISE NOTICE "Escala mantida, pois o plantão já ocorreu na data %", v_data_plantao;
+            CONTINUE;
+        END IF;
+
         -- checando conflito se existe outra escala do residente na mesma unidade, 
         -- no dia e turno de destino
         SELECT EXISTS (
