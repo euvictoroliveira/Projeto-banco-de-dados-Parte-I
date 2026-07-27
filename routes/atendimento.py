@@ -4,7 +4,9 @@
 
 from flask import Blueprint, render_template, request
 from include.verify import validar_cpf, validar_crm
-import database
+from sqlalchemy.orm import aliased
+from models import Atendimento, Pessoa
+from database import db
 import time
 
 listar_atendimentos_bp = Blueprint("listar_atendimentos", __name__)
@@ -36,23 +38,33 @@ def listar_atendimento():
             mensagem_erro = "Erro: CPF inválido"
             return render_template("listar_atendimento.html", feedback=mensagem_erro)
         
+        # Cria apelidos para as tabelas
+        PessoaPaciente = aliased(Pessoa)
+        PessoaPreceptor = aliased(Pessoa)
+        PessoaResidente = aliased(Pessoa)
 
-        cursor = database.conexao.cursor()
+        # Monta a pesquisa
+        query = db.session.query(
+            Atendimento.id_atendimento,
+            Atendimento.data_hora,
+            Atendimento.duracao_minutos,
+            PessoaPaciente.nome.label('nome_paciente'),
+            PessoaPreceptor.nome.label('nome_preceptor'),
+            PessoaResidente.nome.label('nome_residente')
+        ).join(
+            PessoaPaciente, Atendimento.id_paciente == PessoaPaciente.id_pessoa
+        ).join(
+            PessoaPreceptor, Atendimento.id_preceptor == PessoaPreceptor.id_pessoa
+        ).join(
+            PessoaResidente, Atendimento.id_residente == PessoaResidente.id_pessoa
+        ).filter(
+            PessoaPaciente.cpf == paciente_cpf
+        ).order_by(
+            Atendimento.data_hora.desc()
+        )
 
-        consulta = """
-            select a.id_atendimento, a.data_hora, a.duracao_minutos, p_p.nome, p_pre.nome, p_re.nome
-            from atendimento a
-            inner join pessoa p_p on p_p.id_pessoa = a.id_paciente 
-            inner join pessoa p_pre on p_pre.id_pessoa = a.id_preceptor 
-            inner join pessoa p_re on p_re.id_pessoa = a.id_residente 
-            where p_p.cpf = %s
-            order by a.data_hora desc
-        """
-        
-        cursor.execute(consulta, (paciente_cpf,))
-        atendimentos = cursor.fetchall()
 
-        cursor.close()
+        atendimentos = query.all()
 
         return render_template("listar_atendimento.html", lista_atendimentos=atendimentos, feedback=mensagem_erro)
 
