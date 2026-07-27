@@ -266,3 +266,28 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Function para checar sobreposição de escala
+CREATE OR REPLACE FUNCTION fn_check_sobreposicao_escala()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- verifica se já existe outra linha de escala para o mesmo residente,
+    -- no mesmo dia/turno, mas em unidade diferente
+    IF EXISTS (
+        SELECT 1
+        FROM escala
+        WHERE id_residente = NEW.id_residente
+        AND dia_plantao = NEW.dia_plantao
+        AND mes_plantao = NEW.mes_plantao
+        AND ano_plantao = NEW.ano_plantao
+        AND turno = NEW.turno
+        AND id_unidade <> NEW.id_unidade
+        AND id_escala <> NEW.id_escala
+    ) THEN
+        RAISE EXCEPTION 'Residente % já está escalado em outra unidade no turno % do dia %/%/%.',
+            NEW.id_residente, NEW.turno, NEW.dia_plantao, NEW.mes_plantao, NEW.ano_plantao;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
