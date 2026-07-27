@@ -125,6 +125,14 @@ INSERT INTO ESCALA (id_escala, id_unidade, dia_semana, turno, id_residente, id_p
 (6, 1, 'Quarta', 'Noite', 6, 11, 08, 07, 2026),
 (7, 3, 'Quinta', 'Manhã', 10, 15, 09, 07, 2026);
 
+-- Internação FINALIZADA (Paciente teve alta)
+INSERT INTO internacao (id_paciente, id_unidade, data_hora_entrada, data_hora_saida) 
+VALUES (1, 2, '2023-10-01 08:00:00', '2023-10-15 14:30:00');
+
+-- Internação ATIVA (Paciente ainda está no hospital)
+INSERT INTO internacao (id_paciente, id_unidade, data_hora_entrada, data_hora_saida) 
+VALUES (2, 3, '2023-11-20 09:15:00', NULL);
+
 -- Sincroniza o contador automático das tabelas com o maior ID que já existe na tabela
 SELECT setval(pg_get_serial_sequence('pessoa', 'id_pessoa'), max(id_pessoa))
 FROM pessoa;
@@ -143,3 +151,6 @@ FROM unidade;
 
 SELECT setval(pg_get_serial_sequence('alergia', 'id_alergia'), max(id_alergia)) 
 FROM alergia;
+
+select setval(pg_get_serial_sequence('internacao', 'id_internacao'), max(id_internacao))
+from internacao;

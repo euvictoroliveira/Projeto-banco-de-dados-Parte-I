@@ -46,8 +46,10 @@ DECLARE
     r_escala RECORD;
 
     v_conflito BOOLEAN;
+	v_data_plantao TIMESTAMP;
     v_atualizadas INTEGER := 0;
     v_puladas INTEGER := 0;
+
 BEGIN
     -- percorre todas as escalas do residente que estão no dia e turno atuais
     FOR r_escala IN
@@ -63,7 +65,7 @@ BEGIN
         -- checando se o plantão já ocorreu
         if v_data_plantao < CURRENT_DATE THEN
             v_puladas := v_puladas + 1;
-            RAISE NOTICE "Escala mantida, pois o plantão já ocorreu na data %", v_data_plantao;
+            RAISE NOTICE 'Escala mantida, pois o plantão já ocorreu na data %', v_data_plantao;
             CONTINUE;
         END IF;
 

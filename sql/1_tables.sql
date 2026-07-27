@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS paciente CASCADE;
 DROP TABLE IF EXISTS pessoa CASCADE;
 drop table if exists alergia CASCADE;
 drop table if exists paciente_tem_alergia CASCADE;
+drop table if exists internacao cascade;
 
 -- Cria a tabela pessoa
 -- Atributos: ID(chave primária), nome, cpf, data de nascimento, is_flamengo, telefone e endereço
@@ -138,7 +139,7 @@ create table internacao (
 	id_paciente INTEGER not null,
 	id_unidade INTEGER not null,
 	data_hora_entrada TIMESTAMP not null default NOW(),
-	data_hora_saida TIMESTAMP not null default NULL
+	data_hora_saida TIMESTAMP default NULL
 );
 
 
