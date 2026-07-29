@@ -6,7 +6,7 @@ from flask import Blueprint, render_template, request
 from include.verify import validar_cpf, validar_crm
 from sqlalchemy.orm import aliased
 from models import Atendimento, Pessoa
-from database import db
+import database
 import time
 
 listar_atendimentos_bp = Blueprint("listar_atendimentos", __name__)
@@ -44,7 +44,7 @@ def listar_atendimento():
         PessoaResidente = aliased(Pessoa)
 
         # Monta a pesquisa
-        query = db.session.query(
+        query = database.db.session.query(
             Atendimento.id_atendimento,
             Atendimento.data_hora,
             Atendimento.duracao_minutos,
