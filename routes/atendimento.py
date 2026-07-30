@@ -4,8 +4,9 @@
 
 from flask import Blueprint, render_template, request
 from include.verify import validar_cpf, validar_crm
+from sqlalchemy import select
 from sqlalchemy.orm import aliased
-from models import Atendimento, Pessoa
+from models import *
 import database
 import time
 
@@ -92,6 +93,7 @@ def get_lista_unidade():
 def novo_atendimento():
     
     lista_unidades = get_lista_unidade()
+    mensagem_erro = None
 
     if request.method == 'GET':
 
@@ -120,40 +122,36 @@ def novo_atendimento():
             mensagem_erro = "Erro: CRM residente inválido"
             return render_template("novo_atendimento.html", feedback=mensagem_erro)
 
-        if paciente_cpf and preceptor_crm and residente_crm and duracao:
-            cursor = database.conexao.cursor()
+        if paciente_cpf and preceptor_crm and residente_crm and duracao and id_unidade:
             
             try:
                 
-                cursor.execute("SELECT id_pessoa FROM PESSOA WHERE cpf = %s", (paciente_cpf,))
-                resultado_paciente = cursor.fetchone()
-
-                cursor.execute("SELECT id_pessoa FROM PROFISSIONAL WHERE crm = %s", (preceptor_crm,))
-                resultado_preceptor = cursor.fetchone()
-
-                cursor.execute("SELECT id_pessoa FROM PROFISSIONAL WHERE crm = %s", (residente_crm,))
-                resultado_residente = cursor.fetchone()
-
+                # Verifica se existe e pega o id do paciente, preceptor e residente
+                resultado_paciente = database.db.session.scalar(select(Pessoa.id_pessoa).where(paciente_cpf == Pessoa.cpf))
                 if not resultado_paciente:
                     mensagem_erro = "Erro: Paciente não encontrado."
-                elif not resultado_preceptor:
+
+                resultado_preceptor = database.db.session.scalar(select(Profissional.id_pessoa).where(preceptor_crm == Profissional.crm))
+                if not resultado_preceptor:
                     mensagem_erro = "Erro: Preceptor não encontrado."
-                elif not resultado_residente:
+
+                resultado_residente = database.db.session.scalar(select(Profissional.id_pessoa).where(residente_crm == Profissional.crm))
+                if not resultado_residente:
                     mensagem_erro = "Erro: Residente não encontrado."
 
-                else:
+                if mensagem_erro is None:
+                    
+                    Novo_Atendimento = Atendimento(
+                        id_paciente = resultado_paciente,
+                        id_preceptor = resultado_preceptor,
+                        id_residente = resultado_residente,
+                        duracao_minutos = duracao,
+                        data_hora = data_hora,
+                        id_unidade = id_unidade
+                    )
 
-                    id_pac = resultado_paciente[0]
-                    id_prec = resultado_preceptor[0]
-                    id_res = resultado_residente[0]
-
-                    consulta_insert = """
-                        INSERT INTO ATENDIMENTO 
-                        (data_hora, duracao_minutos, id_paciente, id_residente, id_preceptor, id_unidade) 
-                        VALUES (%s, %s, %s, %s, %s, %s);
-                    """
-                    cursor.execute(consulta_insert, (data_hora, duracao, id_pac, id_res, id_prec, id_unidade))
-                    database.conexao.commit()
+                    database.db.session.add(Novo_Atendimento)
+                    database.db.session.commit()
                     
                     mensagem_erro = "Atendimento registrado com sucesso!"
 
@@ -161,9 +159,6 @@ def novo_atendimento():
             except Exception as e:
                 database.conexao.rollback()
                 mensagem_erro = f"Erro na operação: {e}"
-
-            finally:
-                cursor.close()
 
         else:
             mensagem_erro = "Preencha todos os campos."
