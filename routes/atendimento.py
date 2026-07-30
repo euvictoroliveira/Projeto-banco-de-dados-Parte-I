@@ -5,7 +5,7 @@
 from flask import Blueprint, render_template, request
 from include.verify import validar_cpf, validar_crm
 from sqlalchemy.orm import aliased
-from models import Atendimento, Pessoa, Procedimento, ProcedimentoRealizado
+from models import Atendimento, Pessoa
 import database
 import time
 

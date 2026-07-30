@@ -4,27 +4,29 @@
 
 from flask import Blueprint, render_template, request
 from datetime import date
+from sqlalchemy import select, func
+from sqlalchemy.orm import Session
+from models import Residente, Pessoa, Atendimento
 import database
 
 #ranking_residentes_bp = Blueprint("ranking_residentes", __name__)
 estatisticas_bp = Blueprint("Estatisticas", __name__)
 
-#@ranking_residentes_bp.route('/ranking_residentes', methods=['POST'])
 def get_ranking_residentes():
-    cursor = database.conexao.cursor()
 
-    consulta = """
-        SELECT p.nome, count(a.id_atendimento)
-        FROM residente r
-        left JOIN pessoa p ON p.id_pessoa  = r.id_profissional
-        left join atendimento a on a.id_residente = r.id_profissional
-        group by p.id_pessoa, p.nome 
-        order by count(*) desc
-    """
+    query = database.db.session.query(
+        Pessoa.nome, 
+        func.count(Atendimento.id_atendimento)   
+    ).join(
+        Residente, Residente.id_profissional == Pessoa.id_pessoa
+    ).outerjoin(
+        Atendimento, Atendimento.id_residente == Residente.id_profissional
+    ).group_by(
+        Pessoa.id_pessoa
+    ).order_by(
+        func.count(Atendimento.id_atendimento).desc())       
 
-    cursor.execute(consulta)
-    ranking = cursor.fetchall()
-    cursor.close()
+    ranking = query.all()
 
     return ranking
 
