@@ -190,30 +190,34 @@ def listar_procedimentos():
             mensagem_erro = "Erro: Nº de atendimento inválido"
             return render_template("listar_procedimentos.html", feedback=mensagem_erro)
 
-        cursor = database.conexao.cursor()
-
         # Confirma se o atendimento existe antes de consultar os procedimentos
-        cursor.execute("SELECT id_atendimento FROM ATENDIMENTO WHERE id_atendimento = %s", (id_atendimento,))
-        resultado_atendimento = cursor.fetchone()
+        atendimento_existe = database.db.session.query(
+            Atendimento.id_atendimento
+        ).filter(
+            Atendimento.id_atendimento == id_atendimento
+        ).first()
 
-        if not resultado_atendimento:
+        if not atendimento_existe:
             mensagem_erro = "Erro: Atendimento não encontrado."
-            cursor.close()
             return render_template("listar_procedimentos.html", feedback=mensagem_erro)
 
-        consulta = """
-            select p.codigo, p.nome, pr.quantidade, pr.tempo_real_minutos, pr.observacao, pr.is_faturado
-            from procedimento_realizado pr
-            inner join procedimento p on p.id_procedimento = pr.id_procedimento
-            where pr.id_atendimento = %s
-            and pr.is_removido = FALSE
-            order by p.nome
-        """
+        # Monta a pesquisa dos procedimentos realizados no atendimento
+        query = database.db.session.query(
+            Procedimento.codigo,
+            Procedimento.nome,
+            ProcedimentoRealizado.quantidade,
+            ProcedimentoRealizado.tempo_real_minutos,
+            ProcedimentoRealizado.observacao,
+            ProcedimentoRealizado.is_faturado
+        ).join(
+            Procedimento, Procedimento.id_procedimento == ProcedimentoRealizado.id_procedimento
+        ).filter(
+            ProcedimentoRealizado.id_atendimento == id_atendimento,
+            ProcedimentoRealizado.is_removido == False
+        ).order_by(
+            Procedimento.nome
+        )
 
-        cursor.execute(consulta, (id_atendimento,))
-        procedimentos = cursor.fetchall()
-
-        cursor.close()
+        procedimentos = query.all()
 
         return render_template("listar_procedimentos.html", lista_procedimentos=procedimentos, feedback=mensagem_erro)
-        
