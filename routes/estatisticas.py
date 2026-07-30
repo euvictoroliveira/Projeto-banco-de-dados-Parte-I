@@ -4,9 +4,9 @@
 
 from flask import Blueprint, render_template, request
 from datetime import date
-from sqlalchemy import select, func
+from sqlalchemy import select, func, extract, and_
 from sqlalchemy.orm import Session
-from models import Residente, Pessoa, Atendimento
+from models import Residente, Pessoa, Atendimento, Preceptor, Unidade, Escala, Profissional
 import database
 
 #ranking_residentes_bp = Blueprint("ranking_residentes", __name__)
@@ -22,7 +22,7 @@ def get_ranking_residentes():
     ).outerjoin(
         Atendimento, Atendimento.id_residente == Residente.id_profissional
     ).group_by(
-        Pessoa.id_pessoa
+        Pessoa.id_pessoa, Pessoa.nome
     ).order_by(
         func.count(Atendimento.id_atendimento).desc())       
 
@@ -32,71 +32,67 @@ def get_ranking_residentes():
 
 # Preceptores que supervisionaram mais de 5 atendimentos em um determinado mês
 def get_preceptores_mais_de_5_atendimentos(ano, mes):
-    cursor = database.conexao.cursor()
+    query = database.db.session.query(
+        Pessoa.nome,
+        func.count(Atendimento.id_atendimento)
+    ).select_from(Preceptor).outerjoin(
+        Pessoa, Pessoa.id_pessoa == Preceptor.id_profissional
+    ).outerjoin(
+        Atendimento, Atendimento.id_preceptor == Preceptor.id_profissional
+    ).filter(
+        extract('year', Atendimento.data_hora) == ano,
+        extract('month', Atendimento.data_hora) == mes
+    ).group_by(
+        Pessoa.id_pessoa, Pessoa.nome
+    ).having(
+        func.count(Atendimento.id_atendimento) > 5
+    ).order_by(
+        func.count(Atendimento.id_atendimento).desc()
+    )
 
-    consulta = """
-        SELECT p.nome, count(*)
-        FROM preceptor pr
-        left JOIN pessoa p ON p.id_pessoa = pr.id_profissional
-        left JOIN atendimento a ON a.id_preceptor = pr.id_profissional
-        WHERE EXTRACT(YEAR FROM a.data_hora) = %s
-          AND EXTRACT(MONTH FROM a.data_hora) = %s
-        GROUP BY p.id_pessoa, p.nome
-        HAVING count(*) > 5
-        ORDER BY count(*) DESC
-    """
-
-    cursor.execute(consulta, (ano, mes))
-    resultado = cursor.fetchall()
-    cursor.close()
-
-    return resultado
+    return query.all()
 
 # Lista de residentes cadastrados, para popular o dropdown de filtro.
 def get_lista_residentes():
-    cursor = database.conexao.cursor()
-
-    consulta = """
-        SELECT r.id_profissional, p.nome
-        FROM residente r
-        INNER JOIN pessoa p ON p.id_pessoa = r.id_profissional
-        ORDER BY p.nome
-    """
-
-    cursor.execute(consulta)
-    resultado = cursor.fetchall()
-    cursor.close()
-
-    return resultado
+    query = database.db.session.query(
+        Residente.id_profissional, 
+        Pessoa.nome
+    ).join(
+        Pessoa, Pessoa.id_pessoa == Residente.id_profissional
+    ).order_by(
+        Pessoa.nome
+    )
+    
+    return query.all()
 
 # Quantidade de plantões escalados por unidade, em um mês/ano.
 # Se id_residente for informado, filtra apenas os plantões daquele residente;
 # caso contrário, soma os plantões de todos os residentes.
 def get_plantoes_por_unidade(ano, mes, id_residente=None):
-    cursor = database.conexao.cursor()
+    # Cria uma lista base de condições para o LEFT JOIN (outerjoin)
+    condicoes_join = [
+        Unidade.id_unidade == Escala.id_unidade,
+        Escala.mes_plantao == mes,
+        Escala.ano_plantao == ano
+    ]
 
-    consulta = """
-        SELECT u.nome, count(e.id_escala)
-        FROM unidade u
-        left JOIN escala e ON u.id_unidade = e.id_unidade 
-                            AND e.mes_plantao = %s AND e.ano_plantao = %s
-    """
-    parametros = [mes, ano]
-
+    # Adiciona a condição do residente, se ele foi selecionado
     if id_residente:
-        consulta += " AND e.id_residente = %s"
-        parametros.append(id_residente)
+        condicoes_join.append(Escala.id_residente == id_residente)
 
-    consulta += """
-        GROUP BY u.id_unidade, u.nome
-        ORDER BY u.nome
-    """
-
-    cursor.execute(consulta, tuple(parametros))
-    resultado = cursor.fetchall()
-    cursor.close()
-
-    return resultado
+    query = database.db.session.query(
+        Unidade.nome, 
+        func.count(Escala.id_escala)
+    ).outerjoin(
+        # Aplica todas as condições do JOIN juntas
+        Escala, and_(*condicoes_join) 
+    ).group_by(
+        Unidade.id_unidade, Unidade.nome
+    ).order_by(
+        Unidade.nome
+    )
+    
+    return query.all()
 
 @estatisticas_bp.route('/estatisticas', methods=['GET'])
 def estatisticas():
@@ -152,27 +148,21 @@ def estatisticas():
 @estatisticas_bp.route("/tempo_medio_residentes", methods=["GET"])
 def tempo_medio_residentes():
 
-    cursor = database.conexao.cursor()
+    query = database.db.session.query(
+        Pessoa.nome,
+        func.coalesce(func.round(func.avg(Atendimento.duracao_minutos), 2), 0).label('tempo_medio')
+    ).select_from(Residente).outerjoin(
+        Atendimento, Atendimento.id_residente == Residente.id_profissional
+    ).outerjoin(
+        Profissional, Profissional.id_pessoa == Residente.id_profissional
+    ).outerjoin(
+        Pessoa, Pessoa.id_pessoa == Profissional.id_pessoa
+    ).group_by(
+        Pessoa.id_pessoa, Pessoa.nome
+    ).order_by(
+        Pessoa.nome
+    )
 
-    consulta = """
-        SELECT
-            p.nome,
-            COALESCE(ROUND(AVG(a.duracao_minutos), 2), 0) AS tempo_medio
-        FROM residente r
-        left JOIN atendimento a
-            ON r.id_profissional = a.id_residente
-        left JOIN profissional prof
-            ON prof.id_pessoa = r.id_profissional
-        left JOIN pessoa p
-            ON p.id_pessoa = prof.id_pessoa
-        GROUP BY p.nome
-        ORDER BY p.nome;
-    """
-
-    cursor.execute(consulta)
-
-    residentes = cursor.fetchall()
-
-    cursor.close()
+    residentes = query.all()
 
     return render_template("tempo_medio_residentes.html", residentes=residentes)
