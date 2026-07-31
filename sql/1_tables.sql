@@ -106,6 +106,17 @@ CREATE TABLE atendimento (
     id_unidade INTEGER not NULL
 );
 
+-- Cria a tabela de auditoria de atendimentos
+CREATE TABLE auditoria_atendimento (
+    id_auditoria SERIAL PRIMARY KEY,
+    id_atendimento INTEGER NOT NULL,
+    operacao VARCHAR(10) NOT NULL,
+    usuario_bd VARCHAR(100) NOT NULL,
+    data_hora TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    dados_antigos JSONB,
+    dados_novos JSONB
+);
+
 -- Cria a tabela de escala
 CREATE TABLE escala (
     id_escala SERIAL PRIMARY KEY,

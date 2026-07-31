@@ -276,6 +276,92 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ###################################################################################
+-- Function para auditoria dos atendimentos
+-- Registra automaticamente INSERT, UPDATE e DELETE na tabela atendimento
+-- ###################################################################################
+
+CREATE OR REPLACE FUNCTION fn_audita_atendimento()
+RETURNS TRIGGER AS $$
+BEGIN
+
+    -- Registro após inserção
+    IF TG_OP = 'INSERT' THEN
+
+        INSERT INTO auditoria_atendimento (
+            id_atendimento,
+            operacao,
+            usuario_bd,
+            data_hora,
+            dados_antigos,
+            dados_novos
+        )
+        VALUES (
+            NEW.id_atendimento,
+            TG_OP,
+            CURRENT_USER,
+            CURRENT_TIMESTAMP,
+            NULL,
+            to_jsonb(NEW)
+        );
+
+        RETURN NEW;
+
+    END IF;
+
+    -- Registro após atualização
+    IF TG_OP = 'UPDATE' THEN
+
+        INSERT INTO auditoria_atendimento (
+            id_atendimento,
+            operacao,
+            usuario_bd,
+            data_hora,
+            dados_antigos,
+            dados_novos
+        )
+        VALUES (
+            NEW.id_atendimento,
+            TG_OP,
+            CURRENT_USER,
+            CURRENT_TIMESTAMP,
+            to_jsonb(OLD),
+            to_jsonb(NEW)
+        );
+
+        RETURN NEW;
+
+    END IF;
+
+    -- Registro após remoção
+    IF TG_OP = 'DELETE' THEN
+
+        INSERT INTO auditoria_atendimento (
+            id_atendimento,
+            operacao,
+            usuario_bd,
+            data_hora,
+            dados_antigos,
+            dados_novos
+        )
+        VALUES (
+            OLD.id_atendimento,
+            TG_OP,
+            CURRENT_USER,
+            CURRENT_TIMESTAMP,
+            to_jsonb(OLD),
+            NULL
+        );
+
+        RETURN OLD;
+
+    END IF;
+
+    RETURN NULL;
+
+END;
+$$ LANGUAGE plpgsql;
+
+-- ###################################################################################
 -- Function para checar sobreposição de escala
 -- ###################################################################################
 CREATE OR REPLACE FUNCTION fn_check_sobreposicao_escala()
