@@ -6,7 +6,7 @@ from flask import Blueprint, render_template, request
 from datetime import date
 from sqlalchemy import select, func, extract, and_
 from sqlalchemy.orm import Session
-from models import Residente, Pessoa, Atendimento, Preceptor, Unidade, Escala, Profissional
+from models import Residente, Pessoa, Atendimento, Preceptor, Unidade, Escala
 import database
 
 #ranking_residentes_bp = Blueprint("ranking_residentes", __name__)
@@ -35,7 +35,7 @@ def get_preceptores_mais_de_5_atendimentos(ano, mes):
     query = database.db.session.query(
         Pessoa.nome,
         func.count(Atendimento.id_atendimento)
-    ).select_from(Preceptor).outerjoin(
+    ).select_from(Preceptor).join(
         Pessoa, Pessoa.id_pessoa == Preceptor.id_profissional
     ).outerjoin(
         Atendimento, Atendimento.id_preceptor == Preceptor.id_profissional
@@ -154,9 +154,7 @@ def tempo_medio_residentes():
     ).select_from(Residente).outerjoin(
         Atendimento, Atendimento.id_residente == Residente.id_profissional
     ).outerjoin(
-        Profissional, Profissional.id_pessoa == Residente.id_profissional
-    ).outerjoin(
-        Pessoa, Pessoa.id_pessoa == Profissional.id_pessoa
+        Pessoa, Pessoa.id_pessoa == Residente.id_profissional
     ).group_by(
         Pessoa.id_pessoa, Pessoa.nome
     ).order_by(
