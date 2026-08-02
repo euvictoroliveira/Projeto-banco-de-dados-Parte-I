@@ -4,7 +4,7 @@
 
 from flask import Blueprint, render_template, request
 from datetime import date
-from sqlalchemy import select, func, extract, and_, case, cast, Numeric
+from sqlalchemy import select, func, extract, and_, case, cast, Numeric, text
 from sqlalchemy.orm import Session
 from models import Residente, Pessoa, Atendimento, Preceptor, Unidade, Escala, Procedimento, ProcedimentoRealizado, Paciente, Profissional
 from database import db
@@ -15,7 +15,7 @@ estatisticas_bp = Blueprint("Estatisticas", __name__)
 
 def get_ranking_residentes():
 
-    query = database.db.session.query(
+    query = db.session.query(
         Pessoa.nome, 
         func.count(Atendimento.id_atendimento)   
     ).join(
@@ -33,7 +33,7 @@ def get_ranking_residentes():
 
 # Preceptores que supervisionaram mais de 5 atendimentos em um determinado mês
 def get_preceptores_mais_de_5_atendimentos(ano, mes):
-    query = database.db.session.query(
+    query = db.session.query(
         Pessoa.nome,
         func.count(Atendimento.id_atendimento)
     ).select_from(Preceptor).join(
@@ -55,7 +55,7 @@ def get_preceptores_mais_de_5_atendimentos(ano, mes):
 
 # Lista de residentes cadastrados, para popular o dropdown de filtro.
 def get_lista_residentes():
-    query = database.db.session.query(
+    query = db.session.query(
         Residente.id_profissional, 
         Pessoa.nome
     ).join(
@@ -81,7 +81,7 @@ def get_plantoes_por_unidade(ano, mes, id_residente=None):
     if id_residente:
         condicoes_join.append(Escala.id_residente == id_residente)
 
-    query = database.db.session.query(
+    query = db.session.query(
         Unidade.nome, 
         func.count(Escala.id_escala)
     ).outerjoin(
@@ -124,7 +124,7 @@ def get_percentual_alto_risco_por_residente():
         ), 0
     )
 
-    query = database.db.session.query(
+    query = db.session.query(
         Pessoa.nome,
         total_procedimentos.label('total_procedimentos'),
         percentual_alto_risco.label('percentual_alto_risco')
@@ -188,6 +188,9 @@ def estatisticas():
     plantoes_por_unidade = get_plantoes_por_unidade(ano_plantoes, mes_plantoes, id_residente_selecionado)
     percentual_alto_risco = get_percentual_alto_risco_por_residente()
 
+
+    tempo_medio_espera = get_tempo_medio_espera()
+
     return render_template(
         'estatisticas.html',
         ranking_residentes=ranking,
@@ -197,14 +200,34 @@ def estatisticas():
         mes_plantoes_selecionado=mes_plantoes_selecionado,
         lista_residentes=lista_residentes,
         id_residente_selecionado=id_residente_selecionado,
-        percentual_alto_risco=percentual_alto_risco
+        percentual_alto_risco=percentual_alto_risco,
+        lista_tempo_medio_espera = tempo_medio_espera
     )
+
+#
+# Método para pegar a lista de tempo médio de espera de cada unidade
+# Também realiza uma atualização antes de pegar o valor
+#
+def get_tempo_medio_espera():
+
+    try:
+        db.session.execute(text("CALL sp_calcular_tempo_medio_espera()"))
+
+        db.session.commit()
+
+        consulta = db.session.query(Unidade.nome, Unidade.tempo_medio_espera_minutos)
+
+        return consulta.all()
+
+    except Exception as e:
+        db.session.rollback()
+
 
 # Tempo médio de duração dos atendimentos por residente
 @estatisticas_bp.route("/tempo_medio_residentes", methods=["GET"])
 def tempo_medio_residentes():
 
-    query = database.db.session.query(
+    query = db.session.query(
         Pessoa.nome,
         func.coalesce(func.round(func.avg(Atendimento.duracao_minutos), 2), 0).label('tempo_medio')
     ).select_from(Residente).outerjoin(
