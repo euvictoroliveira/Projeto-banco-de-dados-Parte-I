@@ -5,15 +5,13 @@
 from flask import Flask, render_template
 from database import db
 
-from routes.atendimento import listar_atendimentos_bp, novo_atendimento_bp, listar_procedimentos_bp
+from routes.atendimento import atendimento_bp
 
 from routes.estatisticas import estatisticas_bp
 
 from routes.remover_Procedimento import remover_procedimento_bp
 
-from routes.atendimento_unificado import atendimento_bp
-
-from routes.paciente_unificadp import paciente_bp
+from routes.paciente import paciente_bp
 
 from routes.Home import home_bp
 
@@ -29,7 +27,6 @@ db.init_app(app)
 #
 # Blueprints para outras rotas
 #
-app.register_blueprint(listar_procedimentos_bp)
 app.register_blueprint(estatisticas_bp)
 app.register_blueprint(paciente_bp)
 app.register_blueprint(atendimento_bp)

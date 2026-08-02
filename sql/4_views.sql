@@ -92,6 +92,7 @@ procedimentos_mais_comuns AS (
         mes,
         id_unidade
 )
+
 SELECT
     DATE_TRUNC('month', a.data_hora) AS mes,
     u.id_unidade,
@@ -99,12 +100,16 @@ SELECT
     COUNT(*) AS total_atendimentos,
     ROUND(AVG(a.duracao_minutos), 2) AS media_duracao,
     pmc.procedimentos_mais_comuns
+
 FROM atendimento a
+
 INNER JOIN unidade u
     ON a.id_unidade = u.id_unidade
+    
 LEFT JOIN procedimentos_mais_comuns pmc
     ON pmc.mes = DATE_TRUNC('month', a.data_hora)
     AND pmc.id_unidade = a.id_unidade
+
 GROUP BY
     DATE_TRUNC('month', a.data_hora),
     u.id_unidade,

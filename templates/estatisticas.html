@@ -122,4 +122,26 @@
     </table>
 </div>
 
+<div class="painel">
+    <h2>Tempo médio de espera por unidade</h2>
+
+    <table>
+        <tr>
+            <th>Unidade</th>
+            <th>Tempo médio (minutos)</th>
+        </tr>
+
+        {% for linha in lista_tempo_medio_espera %}
+        <tr>
+            <td>{{ linha[0] }}</td>
+            <td>{{ linha[1] }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="3" class="vazio">Nenhuma unidade encontrada.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
 {% endblock %}

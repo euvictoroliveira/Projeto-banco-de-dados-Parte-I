@@ -7,16 +7,10 @@ from database import db
 from sqlalchemy import exists
 import database
 
-atualizar_paciente_bp = Blueprint("atualizar_paciente", __name__)
-listar_pacientes_sem_alto_bp = Blueprint("listar_pacientes_sem_alto", __name__)
-paciente_ultima_consulta_bp = Blueprint("paciente_ultima_consulta", __name__)
+paciente_bp = Blueprint("paciente", __name__)
 
 # Método para atualizar endereço ou convênio de um paciente
-@atualizar_paciente_bp.route('/atualizar_paciente', methods=['GET', 'POST'])
 def atualizar_paciente():
-
-    if request.method == 'GET':
-        return render_template("atualizar_paciente.html")
 
     mensagem_erro = None
 
@@ -90,16 +84,13 @@ def atualizar_paciente():
             else:
                 mensagem_erro = "Nenhuma alteração realizada."
 
-
-
     except Exception as e:
             db.session.rollback()
             mensagem_erro = f"Erro na operação: {e}"
 
-    return render_template("atualizar_paciente.html", feedback=mensagem_erro)
+    return mensagem_erro
 
 # Lista pacientes que nunca realizaram procedimento de risco ALTO
-@listar_pacientes_sem_alto_bp.route('/pacientes_sem_alto', methods=['GET'])
 def listar_pacientes_sem_alto():
 
    subconsulta = (
@@ -138,10 +129,9 @@ def listar_pacientes_sem_alto():
         .all()
     )
    
-   return render_template("pacientes_sem_alto.html",pacientes=pacientes)
+   return pacientes
 
 # Lista, para cada paciente, os dados do seu atendimento mais recente
-@paciente_ultima_consulta_bp.route('/paciente_ultima_consulta', methods=['GET'])
 def paciente_ultima_consulta():
     # Pessoa é usada em 3 papéis diferentes na mesma consulta, por isso 3 aliases.
     PessoaPaciente = aliased(Pessoa)
@@ -203,4 +193,44 @@ def paciente_ultima_consulta():
     )
     
     consultas = query.all() 
-    return render_template("paciente_ultima_consulta.html", consultas=consultas)
+    return consultas
+
+
+
+#
+# Rota única da página Pacientes, com 2 abas controladas por ?tab=
+#
+@paciente_bp.route('/paciente', methods=['GET', 'POST'])
+def paciente():
+
+    feedback = None
+    aba = request.args.get('tab', 'atualizar')
+
+    if request.method == 'POST':
+        feedback = atualizar_paciente()
+        aba = 'atualizar'
+        return render_template(
+            "paciente.html",
+            feedback=feedback
+        )
+
+    if aba == 'sem_alto':
+        pacientes = listar_pacientes_sem_alto()
+        return render_template(
+            "paciente.html",
+            feedback=feedback,
+            pacientes=pacientes
+        )
+
+    if aba == 'ultimo':
+        pacientes = paciente_ultima_consulta()
+        return render_template(
+            "paciente.html",
+            feedback = feedback,
+            pacientes = pacientes
+        )
+
+    return render_template(
+        "paciente.html",
+        feedback=feedback
+    )
