@@ -13,7 +13,7 @@ from routes.remover_Procedimento import remover_procedimento_bp
 
 from routes.atendimento_unificado import atendimento_bp
 
-from routes.paciente_unificadp import paciente_bp
+from routes.paciente import paciente_bp
 
 from routes.Home import home_bp
 

@@ -25,6 +25,9 @@
     <a href="/paciente?tab=sem_alto" class="{% if aba_atual == 'sem_alto' %}active{% endif %}">
         <i class="fa-solid fa-shield-heart"></i> Sem Risco Alto
     </a>
+    <a href="/paciente?tab=ultimo" class="{% if aba_atual == 'ultimo' %}active{% endif %}">
+        <i class="fa-solid fa-clipboard-list"></i> Ultimo Atendimento
+    </a>
 </nav>
 
 {% if aba_atual == 'atualizar' %}
@@ -90,6 +93,35 @@
             <tr>
                 <td>{{ paciente[0] }}</td>
                 <td>{{ paciente[1] }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="2" class="vazio">Nenhum paciente encontrado.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+{% elif aba_atual == 'ultimo' %}
+
+    <div class="painel">
+        <h2>Ultimo atendimento dos pacientes</h2>
+        <table>
+            <tr>
+                <th>Paciente</th>
+                <th>Hora/Data</th>
+                <th>Residente</th>
+                <th>Preceptor</th>
+                <th>Lista Procedimentos</th>
+            </tr>
+
+            {% for paciente in pacientes %}
+            <tr>
+                <td>{{ paciente[0] }}</td>
+                <td>{{ paciente[1] }}</td>
+                <td>{{ paciente[2] }}</td>
+                <td>{{ paciente[3] }}</td>
+                <td>{{ paciente[4] }}</td>
             </tr>
             {% else %}
             <tr>
