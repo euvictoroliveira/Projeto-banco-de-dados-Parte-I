@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}Hospital Dra. Yuska - Atendimento{% endblock %}
+{% block content %}
+
+{% set aba_atual = request.args.get('tab', 'registrar') %}
+
+<div class="page-header">
+    <span class="eyebrow">Atendimentos</span>
+    <h1>Atendimento</h1>
+    <p class="page-subtitle">Registre, consulte e ajuste atendimentos em um só lugar</p>
+</div>
+
+{% if feedback %}
+    {% if 'Erro' in feedback %}
+        <div class="alerta alerta-erro">⚠ {{ feedback }}</div>
+    {% else %}
+        <div class="alerta alerta-sucesso">✔ {{ feedback }}</div>
+    {% endif %}
+{% endif %}
+
+<nav class="tab-nav">
+    <a href="/atendimento?tab=registrar" class="{% if aba_atual == 'registrar' %}active{% endif %}">
+        <i class="fa-solid fa-file-medical"></i> Registrar
+    </a>
+    <a href="/atendimento?tab=listar" class="{% if aba_atual == 'listar' %}active{% endif %}">
+        <i class="fa-solid fa-clipboard-list"></i> Listar
+    </a>
+    <a href="/atendimento?tab=remover" class="{% if aba_atual == 'remover' %}active{% endif %}">
+        <i class="fa-solid fa-trash-can"></i> Remover Procedimento
+    </a>
+</nav>
+
+{% if aba_atual == 'registrar' %}
+
+    <form action="/atendimento" method="POST">
+        <input type="hidden" name="acao" value="registrar">
+
+        <div class="painel form-vertical">
+            <h3>Dados Gerais</h3>
+
+            <label for="cpf">CPF paciente:</label>
+            <input type="text" id="cpf" name="cpf" placeholder="Digite apenas números"
+                   value="{{ cpf_buscado if cpf_buscado else '' }}">
+
+            <label for="duracao">Duração:</label>
+            <input type="text" id="duracao" name="duracao" placeholder="Duração em minutos">
+
+            <div class="linha-campos">
+                <div>
+                    <label for="preceptor">Preceptor:</label>
+                    <input type="text" id="preceptor" name="preceptor" placeholder="insira o CRM">
+                </div>
+                <div>
+                    <label for="residente">Residente:</label>
+                    <input type="text" id="residente" name="residente" placeholder="insira o CRM">
+                </div>
+            </div>
+
+            <label for="id_unidade">Unidade:</label>
+            <select id="id_unidade" name="id_unidade">
+                {% for id_unidade, nome in unidades %}
+                <option value="{{ id_unidade }}">{{ nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="painel">
+            <h3>Procedimentos Realizados (preencha até 5)</h3>
+            <div id="lista-procedimentos">
+                {% for i in range(5) %}
+                <div class="procedimento-item">
+                    <select name="procedimento_id[]">
+                        <option value="">Selecione o procedimento...</option>
+                        {% for proc in procedimentos_disponiveveis %}
+                        <option value="{{ proc.id }}">{{ proc.nome }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="number" name="quantidade[]" placeholder="Qtd" min="1">
+                    <input type="number" name="tempo_real[]" placeholder="Tempo (min)">
+                    <input type="text" name="observacao[]" placeholder="Obs (opcional)">
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <button type="submit" class="btn-full">
+            <i class="fa-solid fa-save"></i> Salvar Atendimento
+        </button>
+    </form>
+
+{% elif aba_atual == 'listar' %}
+
+    <div class="form-caixa">
+        <form action="/atendimento" method="GET">
+            <input type="hidden" name="tab" value="listar">
+            <label for="cpf_listar">Filtrar por CPF (opcional):</label>
+            <input type="text" id="cpf_listar" name="cpf" placeholder="Digite apenas números"
+                   value="{{ cpf_buscado if cpf_buscado else '' }}">
+            <button type="submit">Buscar</button>
+        </form>
+    </div>
+
+    <div class="painel">
+        <table>
+            <tr>
+                <th>Nº</th>
+                <th>Hora/Data</th>
+                <th>Duração (min)</th>
+                <th>Paciente</th>
+                <th>Preceptor</th>
+                <th>Residente</th>
+                <th>Procedimentos</th>
+            </tr>
+
+            {% for atendimento in lista_atendimentos %}
+            <tr>
+                <td>{{ atendimento[0] }}</td>
+                <td>{{ atendimento[1] }}</td>
+                <td>{{ atendimento[2] }}</td>
+                <td>{{ atendimento[3] }}</td>
+                <td>{{ atendimento[4] }}</td>
+                <td>{{ atendimento[5] }}</td>
+                <td>{{ atendimento[6] if atendimento[6] else 'Nenhum' }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="vazio">Nenhum atendimento encontrado.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+{% elif aba_atual == 'remover' %}
+
+    <div class="form-caixa">
+        <form action="/atendimento" method="GET">
+            <input type="hidden" name="tab" value="remover">
+            <label for="id_atendimento">Buscar Atendimento por ID:</label>
+            <input type="text" id="id_atendimento" name="id_atendimento" placeholder="Digite o ID do atendimento"
+                   value="{{ id_atendimento_buscado if id_atendimento_buscado else '' }}" required>
+            <button type="submit">Carregar</button>
+        </form>
+    </div>
+
+    {% if dados_atendimento %}
+    <div class="painel">
+        <div class="ficha-resumo">
+            <p><strong>Atendimento Nº:</strong> {{ dados_atendimento[0] }}</p>
+            <p><strong>Paciente:</strong> {{ dados_atendimento[1] }}</p>
+            <p><strong>Preceptor:</strong> {{ dados_atendimento[2] }}</p>
+            <p><strong>Residente:</strong> {{ dados_atendimento[3] }}</p>
+        </div>
+
+        <table>
+            <tr>
+                <th>Procedimento</th>
+                <th>Qtd</th>
+                <th>Duração Real (min)</th>
+                <th>Observação</th>
+                <th style="text-align: center;">Ação</th>
+            </tr>
+
+            {% for proc in lista_procedimentos %}
+            <tr>
+                <td>{{ proc[1] }}</td>
+                <td>{{ proc[2] }}</td>
+                <td>{{ proc[3] }}</td>
+                <td>{{ proc[4] if proc[4] else 'Nenhuma.' }}</td>
+                <td style="text-align: center;">
+                    {% if proc[5] %}
+                        <span class="texto-faturado">🔒 Faturado</span>
+                    {% else %}
+                        <form action="/atendimento" method="POST"
+                              onsubmit="return confirm('Tem certeza que deseja remover este procedimento?');"
+                              style="display: inline;">
+                            <input type="hidden" name="acao" value="remover_procedimento">
+                            <input type="hidden" name="tab" value="remover">
+                            <input type="hidden" name="id_atendimento" value="{{ dados_atendimento[0] }}">
+                            <input type="hidden" name="id_procedimento" value="{{ proc[0] }}">
+                            <button type="submit" class="btn-remover">Remover</button>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="vazio">Nenhum procedimento associado a este atendimento.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+
+{% endif %}
+
+{% endblock %}

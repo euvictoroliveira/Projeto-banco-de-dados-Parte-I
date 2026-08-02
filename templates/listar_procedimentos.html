@@ -1,44 +1,30 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Dra. Yuska - procedimentos</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body class="pagina-interna">
+{% extends "base.html" %}
+{% block title %}Hospital Dra. Yuska - Procedimentos{% endblock %}
+{% block content %}
 
-<div class="container">
-    <a href="/" class="btn-voltar">⬅ Voltar ao Menu</a>
+<div class="page-header">
+    <span class="eyebrow">Procedimentos</span>
+    <h1>Procedimentos do Atendimento</h1>
+</div>
 
-    <h1>Gestão Hospitalar - Dra. Yuska</h1>
-    <h2>Procedimentos do Atendimento</h2>
-
-    {% if feedback %}
-        {% if 'Erro' in feedback %}
-            <div class="alerta alerta-erro">
-                ⚠ {{ feedback }}
-            </div>
-        {% else %}
-            <div class="alerta alerta-sucesso">
-                ✔ {{ feedback }}
-            </div>
-        {% endif %}
+{% if feedback %}
+    {% if 'Erro' in feedback %}
+        <div class="alerta alerta-erro">⚠ {{ feedback }}</div>
+    {% else %}
+        <div class="alerta alerta-sucesso">✔ {{ feedback }}</div>
     {% endif %}
+{% endif %}
 
-    <div class="form-caixa">
-        <form action="/listar_procedimentos" method="GET">
+<div class="form-caixa">
+    <form action="/listar_procedimentos" method="GET">
+        <label for="id_atendimento">Buscar por Nº do Atendimento:</label>
+        <input type="text" id="id_atendimento" name="id_atendimento" placeholder="Digite o número do atendimento"
+               value="{{ request.args.get('id_atendimento', '') }}">
+        <button type="submit">Buscar</button>
+    </form>
+</div>
 
-            <label for="id_atendimento">Buscar por Nº do Atendimento:</label>
-
-            <input type="text" id="id_atendimento" name="id_atendimento" placeholder="Digite o número do atendimento"
-                   value="{{ request.args.get('id_atendimento', '') }}">
-
-            <button type="submit">Buscar</button>
-
-        </form>
-    </div>
-
+<div class="painel">
     <table>
         <tr>
             <th>Código</th>
@@ -72,5 +58,4 @@
     </table>
 </div>
 
-</body>
-</html>
+{% endblock %}

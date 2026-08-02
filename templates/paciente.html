@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Hospital Dra. Yuska - Pacientes{% endblock %}
+{% block content %}
+
+{% set aba_atual = request.args.get('tab', 'atualizar') %}
+
+<div class="page-header">
+    <span class="eyebrow">Pacientes</span>
+    <h1>Pacientes</h1>
+    <p class="page-subtitle">Atualize dados cadastrais ou consulte pacientes sem procedimentos de risco alto</p>
+</div>
+
+{% if feedback %}
+    {% if 'Erro' in feedback %}
+        <div class="alerta alerta-erro">⚠ {{ feedback }}</div>
+    {% else %}
+        <div class="alerta alerta-sucesso">✔ {{ feedback }}</div>
+    {% endif %}
+{% endif %}
+
+<nav class="tab-nav">
+    <a href="/paciente?tab=atualizar" class="{% if aba_atual == 'atualizar' %}active{% endif %}">
+        <i class="fa-solid fa-user-pen"></i> Atualizar Dados
+    </a>
+    <a href="/paciente?tab=sem_alto" class="{% if aba_atual == 'sem_alto' %}active{% endif %}">
+        <i class="fa-solid fa-shield-heart"></i> Sem Risco Alto
+    </a>
+</nav>
+
+{% if aba_atual == 'atualizar' %}
+
+    <div class="painel form-vertical">
+        <form action="/paciente" method="POST">
+            <input type="hidden" name="acao" value="atualizar">
+
+            <label>CPF do paciente</label>
+            <input type="text" name="cpf" placeholder="Digite apenas os números" required>
+
+            <div class="linha-campos">
+                <div>
+                    <label>CEP</label>
+                    <input type="text" name="cep" placeholder="CEP">
+                </div>
+                <div>
+                    <label>Número</label>
+                    <input type="text" name="numero" placeholder="Número">
+                </div>
+            </div>
+
+            <label>Logradouro</label>
+            <input type="text" name="logradouro" placeholder="Rua, Avenida...">
+
+            <label>Complemento</label>
+            <input type="text" name="complemento" placeholder="Apartamento, bloco...">
+
+            <div class="linha-campos">
+                <div>
+                    <label>Bairro</label>
+                    <input type="text" name="bairro" placeholder="Bairro">
+                </div>
+                <div>
+                    <label>Cidade</label>
+                    <input type="text" name="cidade" placeholder="Cidade">
+                </div>
+                <div>
+                    <label>UF</label>
+                    <input type="text" name="uf" maxlength="2" placeholder="Ex: PB">
+                </div>
+            </div>
+
+            <label>Número do Convênio</label>
+            <input type="text" name="convenio" placeholder="Número do convênio">
+
+            <button type="submit">Atualizar Paciente</button>
+
+        </form>
+    </div>
+
+{% elif aba_atual == 'sem_alto' %}
+
+    <div class="painel">
+        <h2>Pacientes que nunca realizaram procedimentos de risco ALTO</h2>
+        <table>
+            <tr>
+                <th>Nome</th>
+                <th>CPF</th>
+            </tr>
+
+            {% for paciente in pacientes %}
+            <tr>
+                <td>{{ paciente[0] }}</td>
+                <td>{{ paciente[1] }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="2" class="vazio">Nenhum paciente encontrado.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+{% endif %}
+
+{% endblock %}

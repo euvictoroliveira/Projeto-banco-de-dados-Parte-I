@@ -1,60 +1,105 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Dra. Yuska - Início</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body class="pagina-menu">
+{% extends "base.html" %}
+{% block title %}Hospital Dra. Yuska - Início{% endblock %}
+{% block content %}
 
-<div class="menu-container">
-    <h1>Hospital Dra. Yuska</h1>
-    <p class="subtitulo">Sistema de Gestão Hospitalar - Escolha uma operação no menu abaixo</p>
+<div class="page-header">
+    <span class="eyebrow">Painel Geral</span>
+    <h1>Sistema de Gestão Hospitalar</h1>
+    <p class="page-subtitle">Hospital Universitário Dra. Yuska Maritan Brito — visão geral e acesso rápido</p>
+</div>
 
-    <div class="grid-menu">
-
-        <a href="/listar_atendimentos" class="card-botao">
-            <span class="icone">📋</span>
-            Listar Atendimentos
-        </a>
-
-        <a href="/listar_procedimentos" class="card-botao">
-            <span class="icone">💉</span>
-            Listar procedimentos
-        </a>
-
-        <a href="/novo_atendimento" class="card-botao">
-            <span class="icone">➕</span>
-            Inserir Novo Atendimento
-        </a>
-
-        <a href="/remover_procedimento" class="card-botao">
-            <span class="icone">❌</span>
-            Remover Procedimento Realizado
-        </a>
-
-        <a href="/atualizar_paciente" class="card-botao">
-            <span class="icone">🔄</span>
-            Atualizar Dados de Paciente
-        </a>
-
-        <a href="/estatisticas" class="card-botao">
-            <span class="icone">📊</span>
-            Estatísticas
-        </a>
-
-        <a href="/pacientes_sem_alto" class="card-botao">
-            <span class="icone">🩺</span>
-            Pacientes sem Procedimentos de Risco Alto
-        </a>
-
-        <a href="/tempo_medio_residentes" class="card-botao">
-            <span class="icone">🩺</span>
-            Tempo médio de duração dos atendimentos por residente
-        </a>
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-user-injured"></i></div>
+        <div>
+            <div class="stat-value">{{ total_pacientes if total_pacientes is not none else '—' }}</div>
+            <div class="stat-label">Pacientes cadastrados</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+        <div>
+            <div class="stat-value">{{ total_atendimentos if total_atendimentos is not none else '—' }}</div>
+            <div class="stat-label">Atendimentos totais</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-calendar-check"></i></div>
+        <div>
+            <div class="stat-value">{{ atendimentos_mes if atendimentos_mes is not none else '—' }}</div>
+            <div class="stat-label">Atendimentos neste mês</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-syringe"></i></div>
+        <div>
+            <div class="stat-value">{{ total_procedimentos if total_procedimentos is not none else '—' }}</div>
+            <div class="stat-label">Procedimentos realizados</div>
+        </div>
     </div>
 </div>
 
-</body>
-</html>
+{% if ranking_labels %}
+<div class="painel chart-painel">
+    <h2>Top Residentes por Nº de Atendimentos</h2>
+    <canvas id="graficoRanking"></canvas>
+</div>
+{% endif %}
+
+<div class="grid-menu">
+
+    <a href="/atendimento" class="card-botao">
+        <span class="icone"><i class="fa-solid fa-file-medical"></i></span>
+        Atendimento
+    </a>
+
+    <a href="/atualizar_paciente?tab=atualizar" class="card-botao">
+        <span class="icone"><i class="fa-solid fa-user-pen"></i></span>
+        Atualizar Dados de Paciente
+    </a>
+
+    <a href="/atualizar_paciente?tab=sem_alto" class="card-botao">
+        <span class="icone"><i class="fa-solid fa-shield-heart"></i></span>
+        Pacientes sem Procedimentos de Risco Alto
+    </a>
+
+    <a href="/tempo_medio_residentes" class="card-botao">
+        <span class="icone"><i class="fa-solid fa-user-clock"></i></span>
+        Tempo Médio de Atendimento por Residente
+    </a>
+
+    <a href="/estatisticas" class="card-botao">
+        <span class="icone"><i class="fa-solid fa-chart-line"></i></span>
+        Estatísticas
+    </a>
+
+</div>
+
+{% if ranking_labels %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+    const ctx = document.getElementById('graficoRanking');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ ranking_labels | tojson }},
+            datasets: [{
+                label: 'Atendimentos',
+                data: {{ ranking_valores | tojson }},
+                backgroundColor: '#0B5D68',
+                borderRadius: 6,
+                maxBarThickness: 42
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { precision: 0 } }
+            }
+        }
+    });
+</script>
+{% endif %}
+
+{% endblock %}

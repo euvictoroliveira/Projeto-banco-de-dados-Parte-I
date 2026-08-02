@@ -1,21 +1,15 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacientes sem Procedimentos de Alto Risco</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body class="pagina-interna">
+{% extends "base.html" %}
+{% block title %}Pacientes sem Procedimentos de Alto Risco{% endblock %}
+{% block content %}
 
-<div class="container">
+<div class="page-header">
+    <span class="eyebrow">Pacientes</span>
+    <h1>Sem Procedimentos de Risco Alto</h1>
+    <p class="page-subtitle">Pacientes que nunca realizaram procedimentos classificados como risco ALTO</p>
+</div>
 
-    <a href="/" class="btn-voltar">⬅ Voltar</a>
-
-    <h1>Pacientes que nunca realizaram procedimentos de risco ALTO</h1>
-
+<div class="painel">
     <table>
-
         <tr>
             <th>Nome</th>
             <th>CPF</th>
@@ -31,10 +25,7 @@
             <td colspan="2" class="vazio">Nenhum paciente encontrado.</td>
         </tr>
         {% endfor %}
-
     </table>
-
 </div>
 
-</body>
-</html>
+{% endblock %}

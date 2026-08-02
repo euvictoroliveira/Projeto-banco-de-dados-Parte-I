@@ -1,44 +1,30 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Dra. Yuska - atendimentos</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body class="pagina-interna">
+{% extends "base.html" %}
+{% block title %}Hospital Dra. Yuska - Atendimentos{% endblock %}
+{% block content %}
 
-<div class="container">
-    <a href="/" class="btn-voltar">⬅ Voltar ao Menu</a>
+<div class="page-header">
+    <span class="eyebrow">Atendimentos</span>
+    <h1>Atendimentos Registrados</h1>
+</div>
 
-    <h1>Gestão Hospitalar - Dra. Yuska</h1>
-    <h2>Atendimentos Registrados</h2>
-
-    {% if feedback %}
-        {% if 'Erro' in feedback %}
-            <div class="alerta alerta-erro">
-                ⚠ {{ feedback }}
-            </div>
-        {% else %}
-            <div class="alerta alerta-sucesso">
-                ✔ {{ feedback }}
-            </div>
-        {% endif %}
+{% if feedback %}
+    {% if 'Erro' in feedback %}
+        <div class="alerta alerta-erro">⚠ {{ feedback }}</div>
+    {% else %}
+        <div class="alerta alerta-sucesso">✔ {{ feedback }}</div>
     {% endif %}
+{% endif %}
 
-    <div class="form-caixa">
-        <form action="/listar_atendimentos" method="GET">
+<div class="form-caixa">
+    <form action="/listar_atendimentos" method="GET">
+        <label for="cpf">Buscar por CPF:</label>
+        <input type="text" id="cpf" name="cpf" placeholder="Digite apenas números"
+               value="{{ cpf_buscado if cpf_buscado else '' }}">
+        <button type="submit">Buscar</button>
+    </form>
+</div>
 
-            <label for="cpf">Buscar por CPF:</label>
-
-            <input type="text" id="cpf" name="cpf" placeholder="Digite apenas números"
-                   value="{{ cpf_buscado if cpf_buscado else '' }}">
-
-            <button type="submit">Buscar</button>
-
-        </form>
-    </div>
-
+<div class="painel">
     <table>
         <tr>
             <th>Nº</th>
@@ -66,5 +52,4 @@
     </table>
 </div>
 
-</body>
-</html>
+{% endblock %}

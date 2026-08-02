@@ -1,33 +1,23 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Dra. Yuska - atendimentos</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body class="pagina-interna">
+{% extends "base.html" %}
+{% block title %}Hospital Dra. Yuska - Estatísticas{% endblock %}
+{% block content %}
 
-<div class="container">
-    <a href="/" class="btn-voltar">⬅ Voltar ao Menu</a>
+<div class="page-header">
+    <span class="eyebrow">Painel Analítico</span>
+    <h1>Estatísticas</h1>
+</div>
 
-    <h1>Gestão Hospitalar - Dra. Yuska</h1>
-    <h2>Estatísticas</h2>
-
-    <div class="container">
-
+<div class="painel">
     <h2>Ranking de atendimentos de residentes</h2>
     <table>
         <tr>
             <th>Nome</th>
             <th>Quantidade</th>
         </tr>
-
         {% for linha in ranking_residentes %}
         <tr>
             <td>{{ linha[0] }}</td>
             <td>{{ linha[1] }}</td>
-
         </tr>
         {% else %}
         <tr>
@@ -35,22 +25,16 @@
         </tr>
         {% endfor %}
     </table>
+</div>
 
-    </div>
-
-    <div class="container">
-
+<div class="painel">
     <h2>Preceptores com mais de 5 atendimentos no mês</h2>
 
     <div class="form-caixa">
         <form action="/estatisticas" method="GET">
-
             <label for="mes">Mês de referência:</label>
-
             <input type="month" id="mes" name="mes" value="{{ mes_selecionado }}">
-
             <button type="submit">Filtrar</button>
-
         </form>
     </div>
 
@@ -59,7 +43,6 @@
             <th>Nome</th>
             <th>Atendimentos</th>
         </tr>
-
         {% for linha in preceptores_mais_de_5 %}
         <tr>
             <td>{{ linha[0] }}</td>
@@ -71,29 +54,29 @@
         </tr>
         {% endfor %}
     </table>
+</div>
 
-    </div>
-
-    <div class="container">
-
+<div class="painel">
     <h2>Plantões escalados por unidade, no mês</h2>
 
     <div class="form-caixa">
         <form action="/estatisticas" method="GET">
-
-            <label for="mes_plantoes">Mês de referência:</label>
-            <input type="month" id="mes_plantoes" name="mes_plantoes" value="{{ mes_plantoes_selecionado }}">
-
-            <label for="id_residente">Residente:</label>
-            <select id="id_residente" name="id_residente">
-                <option value="">Todos os residentes</option>
-                {% for id_profissional, nome in lista_residentes %}
-                <option value="{{ id_profissional }}" {% if id_residente_selecionado == id_profissional %}selected{% endif %}>{{ nome }}</option>
-                {% endfor %}
-            </select>
-
+            <div class="linha-campos">
+                <div>
+                    <label for="mes_plantoes">Mês de referência:</label>
+                    <input type="month" id="mes_plantoes" name="mes_plantoes" value="{{ mes_plantoes_selecionado }}">
+                </div>
+                <div>
+                    <label for="id_residente">Residente:</label>
+                    <select id="id_residente" name="id_residente">
+                        <option value="">Todos os residentes</option>
+                        {% for id_profissional, nome in lista_residentes %}
+                        <option value="{{ id_profissional }}" {% if id_residente_selecionado == id_profissional %}selected{% endif %}>{{ nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
             <button type="submit">Filtrar</button>
-
         </form>
     </div>
 
@@ -102,7 +85,6 @@
             <th>Unidade</th>
             <th>Plantões</th>
         </tr>
-
         {% for unidade, quantidade in plantoes_por_unidade %}
         <tr>
             <td>{{ unidade }}</td>
@@ -114,10 +96,6 @@
         </tr>
         {% endfor %}
     </table>
-
-    </div>
-
 </div>
 
-</body>
-</html>
+{% endblock %}
