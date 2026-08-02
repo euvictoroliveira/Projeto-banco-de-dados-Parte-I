@@ -6,7 +6,8 @@ from flask import Blueprint, render_template, request
 from datetime import date
 from sqlalchemy import select, func, extract, and_, case, cast, Numeric
 from sqlalchemy.orm import Session
-from models import Residente, Pessoa, Atendimento, Preceptor, Unidade, Escala, Procedimento, ProcedimentoRealizado
+from models import Residente, Pessoa, Atendimento, Preceptor, Unidade, Escala, Procedimento, ProcedimentoRealizado, Paciente, Profissional
+from database import db
 import database
 
 #ranking_residentes_bp = Blueprint("ranking_residentes", __name__)
@@ -219,3 +220,61 @@ def tempo_medio_residentes():
     residentes = query.all()
 
     return render_template("tempo_medio_residentes.html", residentes=residentes)
+
+# Implementa consulta avançada de preceptores flamenguistas
+@estatisticas_bp.route('/preceptores_flamengo')
+def listar_preceptores_flamengo():
+
+    pessoa_preceptor = Pessoa.__table__.alias("pessoa_preceptor")
+
+    preceptores = (
+        db.session.query(
+            pessoa_preceptor.c.nome.label("preceptor"),
+            Profissional.crm,
+            Preceptor.titulacao
+        )
+
+        .select_from(Atendimento)
+
+        .join(
+            Paciente,
+            Atendimento.id_paciente == Paciente.id_pessoa
+        )
+
+        .join(
+            Pessoa,
+            Pessoa.id_pessoa == Paciente.id_pessoa
+        )
+
+        .join(
+            Preceptor,
+            Atendimento.id_preceptor == Preceptor.id_profissional
+        )
+
+        .join(
+            Profissional,
+            Preceptor.id_profissional == Profissional.id_pessoa
+        )
+
+        .join(
+            pessoa_preceptor,
+            Profissional.id_pessoa == pessoa_preceptor.c.id_pessoa
+        )
+
+        .filter(
+            Pessoa.is_flamengo == True
+        )
+
+        .distinct()
+
+        .order_by(
+            pessoa_preceptor.c.nome
+        )
+
+        .all()
+    )
+
+    return render_template(
+        "preceptores_flamengo.html",
+        preceptores=preceptores
+    )
