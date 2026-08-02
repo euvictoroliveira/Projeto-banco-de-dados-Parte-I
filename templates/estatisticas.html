@@ -98,4 +98,28 @@
     </table>
 </div>
 
+<div class="painel">
+    <h2>Percentual de procedimentos de alto risco por residente</h2>
+
+    <table>
+        <tr>
+            <th>Residente</th>
+            <th>Total de Procedimentos</th>
+            <th>% de Alto Risco</th>
+        </tr>
+
+        {% for nome, total, percentual in percentual_alto_risco %}
+        <tr>
+            <td>{{ nome }}</td>
+            <td>{{ total }}</td>
+            <td>{{ "%.2f"|format(percentual) }}%</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="3" class="vazio">Nenhum residente encontrado.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
 {% endblock %}
