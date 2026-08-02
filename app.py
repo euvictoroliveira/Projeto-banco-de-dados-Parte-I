@@ -17,6 +17,7 @@ from routes.paciente_unificadp import paciente_bp
 
 from routes.Home import home_bp
 
+from routes.views import views_bp
 
 app = Flask(__name__)
 
@@ -33,6 +34,7 @@ app.register_blueprint(estatisticas_bp)
 app.register_blueprint(paciente_bp)
 app.register_blueprint(atendimento_bp)
 app.register_blueprint(home_bp)
+app.register_blueprint(views_bp)
 
 
 @app.route('/')

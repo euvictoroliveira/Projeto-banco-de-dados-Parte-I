@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Pacientes Internados{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <span class="eyebrow">Views</span>
+    <h1>Pacientes Internados</h1>
+    <p class="page-subtitle">
+        Lista de pacientes cuja internação encontra-se ativa.
+    </p>
+</div>
+
+<div class="painel">
+
+    {% if pacientes %}
+
+    <table class="tabela">
+        <thead>
+            <tr>
+                <th>ID Paciente</th>
+                <th>Paciente</th>
+                <th>Unidade</th>
+                <th>Data/Hora de Entrada</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for paciente in pacientes %}
+
+            <tr>
+                <td>{{ paciente.id_paciente }}</td>
+                <td>{{ paciente.nome_paciente }}</td>
+                <td>{{ paciente.id_unidade }}</td>
+                <td>{{ paciente.data_hora_entrada.strftime("%d/%m/%Y %H:%M") }}</td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+    {% else %}
+
+    <p>Nenhum paciente internado no momento.</p>
+
+    {% endif %}
+
+</div>
+
+<div style="margin-top:25px;">
+    <a href="/views" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-left"></i>
+        Voltar
+    </a>
+</div>
+
+{% endblock %}
