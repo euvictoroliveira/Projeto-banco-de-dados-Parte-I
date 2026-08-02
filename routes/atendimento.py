@@ -100,7 +100,6 @@ def remover_procedimento_realizado():
 # Método para registrar um atendimento completo
 #
 def registrar_atendimento_completo():
-
     paciente_cpf = request.form.get('cpf')
     preceptor_crm = request.form.get('preceptor')
     residente_crm = request.form.get('residente')
@@ -116,58 +115,67 @@ def registrar_atendimento_completo():
         return "Preencha todos os campos."
 
     try:
-        # Recupera os IDs necessários
-        id_pac = database.db.session.scalar(select(Pessoa.id_pessoa).where(Pessoa.cpf == paciente_cpf))
-        id_prec = database.db.session.scalar(select(Profissional.id_pessoa).where(Profissional.crm == preceptor_crm))
-        id_res = database.db.session.scalar(select(Profissional.id_pessoa).where(Profissional.crm == residente_crm))
 
-        if not id_pac: return "Erro: Paciente não encontrado."
-        if not id_prec: return "Erro: Preceptor não encontrado."
-        if not id_res: return "Erro: Residente não encontrado."
+        resultado_paciente = database.db.session.scalar(select(Pessoa.id_pessoa).where(Pessoa.cpf == paciente_cpf))
+        resultado_preceptor = database.db.session.scalar(select(Profissional.id_pessoa).where(Profissional.crm == preceptor_crm))
+        resultado_residente = database.db.session.scalar(select(Profissional.id_pessoa).where(Profissional.crm == residente_crm))
 
-        # Cria o objeto do Atendimento e envia para o banco
-        novo_atend = Atendimento(
-            data_hora=data_hora,
-            duracao_minutos=duracao,
-            id_paciente=id_pac,
-            id_residente=id_res,
-            id_preceptor=id_prec,
-            id_unidade=id_unidade
-        )
-        database.db.session.add(novo_atend)
-        
-        # O .flush() envia o insert para o banco para gerar a Primary Key (id_atendimento), mas ainda não efetiva a transação. 
-        database.db.session.flush() 
+        if not resultado_paciente: return "Erro: Paciente não encontrado."
+        if not resultado_preceptor: return "Erro: Preceptor não encontrado."
+        if not resultado_residente: return "Erro: Residente não encontrado."
 
-        # Prepara e insere os procedimentos vinculados ao novo ID gerado
+        # Monta a lista de procedimentos
         procedimento_ids = request.form.getlist('procedimento_id[]')
         quantidades = request.form.getlist('quantidade[]')
         tempos_reais = request.form.getlist('tempo_real[]')
         observacoes = request.form.getlist('observacao[]')
 
-        proc_adicionados = 0
+        procedimentos = []
         for i in range(len(procedimento_ids)):
-            if procedimento_ids[i]: # Ignora linhas vazias do formulário
+            if procedimento_ids[i]:
+                procedimentos.append({
+                    "id_procedimento": int(procedimento_ids[i]),
+                    "quantidade": int(quantidades[i]),
+                    "tempo_real_minutos": int(tempos_reais[i]),
+                    "observacao": observacoes[i]
+                })
 
-                novo_proc = ProcedimentoRealizado(
-                    id_atendimento=novo_atend.id_atendimento, # Pega o ID gerado pelo flush
-                    id_procedimento=int(procedimento_ids[i]),
-                    quantidade=int(quantidades[i]),
-                    tempo_real_minutos=int(tempos_reais[i]),
-                    observacao=observacoes[i]
-                )
-
-                database.db.session.add(novo_proc)
-                proc_adicionados += 1
-
-        if proc_adicionados == 0:
-            database.db.session.rollback()
+        if not procedimentos:
             return "Erro: informe ao menos um procedimento realizado."
 
+        comando_sql = text("""
+            CALL sp_registrar_atendimento_completo(
+                :p_data_hora, 
+                :p_duracao, 
+                :p_id_pac, 
+                :p_id_res, 
+                :p_id_prec, 
+                :p_id_unidade, 
+                :p_procedimentos, 
+                NULL
+            )
+        """)
+
+        parametros = {
+            'p_data_hora': data_hora,
+            'p_duracao': duracao,
+            'p_id_pac': resultado_paciente,
+            'p_id_res': resultado_residente,
+            'p_id_prec': resultado_preceptor,
+            'p_id_unidade': id_unidade,
+            'p_procedimentos': json.dumps(procedimentos)
+        }
+
+        resultado = database.db.session.execute(comando_sql, parametros)
+        linha_retorno = resultado.fetchone()
+        id_atendimento_criado = linha_retorno[0] if linha_retorno else None
+
         database.db.session.commit()
-        return f"Atendimento Nº {novo_atend.id_atendimento} registrado com sucesso!"
+        
+        return f"Atendimento Nº {id_atendimento_criado} registrado com sucesso!"
 
     except Exception as e:
+        # Em caso de erro, reverte tudo
         database.db.session.rollback()
         return f"Erro na operação: {e}"
 
