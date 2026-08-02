@@ -55,3 +55,58 @@ INNER JOIN unidade u
     ON e.id_unidade = u.id_unidade
 
 WHERE pr.titulacao <> 'Doutor';
+
+-- View de estatísticas de procedimentos mais comuns
+CREATE OR REPLACE VIEW vw_estatisticas_atendimentos_mensal AS
+WITH procedimentos_contagem AS (
+    SELECT
+        DATE_TRUNC('month', a.data_hora) AS mes,
+        a.id_unidade,
+        pr.nome AS procedimento,
+        COUNT(*) AS quantidade,
+
+        RANK() OVER (
+            PARTITION BY DATE_TRUNC('month', a.data_hora), a.id_unidade
+            ORDER BY COUNT(*) DESC
+        ) AS posicao
+
+    FROM atendimento a
+    INNER JOIN procedimento_realizado p
+        ON a.id_atendimento = p.id_atendimento
+    INNER JOIN procedimento pr
+        ON p.id_procedimento = pr.id_procedimento
+    GROUP BY
+        DATE_TRUNC('month', a.data_hora),
+        a.id_unidade,
+        pr.nome
+),
+
+procedimentos_mais_comuns AS (
+    SELECT
+        mes,
+        id_unidade,
+        STRING_AGG(procedimento, ', ' ORDER BY procedimento) AS procedimentos_mais_comuns
+    FROM procedimentos_contagem
+    WHERE posicao = 1
+    GROUP BY
+        mes,
+        id_unidade
+)
+SELECT
+    DATE_TRUNC('month', a.data_hora) AS mes,
+    u.id_unidade,
+    u.nome AS unidade,
+    COUNT(*) AS total_atendimentos,
+    ROUND(AVG(a.duracao_minutos), 2) AS media_duracao,
+    pmc.procedimentos_mais_comuns
+FROM atendimento a
+INNER JOIN unidade u
+    ON a.id_unidade = u.id_unidade
+LEFT JOIN procedimentos_mais_comuns pmc
+    ON pmc.mes = DATE_TRUNC('month', a.data_hora)
+    AND pmc.id_unidade = a.id_unidade
+GROUP BY
+    DATE_TRUNC('month', a.data_hora),
+    u.id_unidade,
+    u.nome,
+    pmc.procedimentos_mais_comuns;
