@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request
-import database
+from database import db
+from models import Atendimento, Procedimento, ProcedimentoRealizado, Pessoa
 
 remover_procedimento_bp = Blueprint("remover_procedimento", __name__)
 
@@ -13,68 +14,87 @@ def remover_procedimento():
     id_atendimento = request.args.get('id_atendimento') or request.form.get('id_atendimento')
     id_procedimento = request.form.get('id_procedimento')
 
-    cursor = database.conexao.cursor()
-
     try:
-        database.conexao.rollback()
 
         if request.method == 'POST' and id_procedimento and id_atendimento:
-            # 1. Verifica se o procedimento já foi faturado na tabela "procedimento_realizado"
-            cursor.execute("""
-                SELECT is_faturado FROM procedimento_realizado 
-                WHERE id_atendimento = %s AND id_procedimento = %s AND is_removido = FALSE
-            """, (id_atendimento, id_procedimento))
-            resultado = cursor.fetchone()
+            procedimento = ProcedimentoRealizado.query.filter_by(
+                id_atendimento=id_atendimento,
+                id_procedimento=id_procedimento,
+                is_removido=False
+            ).first()
 
-            if not resultado:
+            if not procedimento:
                 feedback = "Erro: Procedimento não encontrado neste atendimento."
-            elif resultado[0] == True:
+
+            elif procedimento.is_faturado:
                 feedback = "Erro: Este procedimento já foi faturado e não pode ser removido."
+
             else:
-                # 2. Executa a exclusão lógica (definindo is_removido como TRUE) ou física.
-               
-                cursor.execute("""
-                    UPDATE procedimento_realizado 
-                    SET is_removido = TRUE 
-                    WHERE id_atendimento = %s AND id_procedimento = %s
-                """, (id_atendimento, id_procedimento))
-                
-                database.conexao.commit()
+                procedimento.is_removido = True
+                db.session.commit()
                 feedback = "Procedimento removido com sucesso!"
 
         # SE TEMOS UM ATENDIMENTO SENDO CONSULTADO/REMOVIDO
         if id_atendimento:
             
-            cursor.execute("""
-                SELECT a.id_atendimento, p_pac.nome, p_prec.nome, p_res.nome 
-                FROM atendimento a
-                INNER JOIN pessoa p_pac ON a.id_paciente = p_pac.id_pessoa
-                INNER JOIN pessoa p_prec ON a.id_preceptor = p_prec.id_pessoa
-                INNER JOIN pessoa p_res ON a.id_residente = p_res.id_pessoa
-                WHERE a.id_atendimento = %s
-            """, (id_atendimento,))
-            dados_atendimento = cursor.fetchone()
+            paciente = Pessoa.__table__.alias("paciente")
+            residente = Pessoa.__table__.alias("residente")
+            preceptor = Pessoa.__table__.alias("preceptor")
+
+            dados_atendimento = (
+                db.session.query(
+                    Atendimento.id_atendimento,
+                    paciente.c.nome,
+                    preceptor.c.nome,
+                    residente.c.nome
+                )
+                .join(
+                    paciente,
+                    Atendimento.id_paciente == paciente.c.id_pessoa
+                )
+                .join(
+                    preceptor,
+                    Atendimento.id_preceptor == preceptor.c.id_pessoa
+                )
+                .join(
+                    residente,
+                    Atendimento.id_residente == residente.c.id_pessoa
+                )
+                .filter(
+                    Atendimento.id_atendimento == id_atendimento
+                )
+                .first()
+            )
 
             if dados_atendimento:
                 # Busca os procedimentos vinculados na tabela "procedimento_realizado"
-                
-                cursor.execute("""
-                    SELECT pr.id_procedimento, pr.nome, pr_real.quantidade, 
-                           pr_real.tempo_real_minutos, pr_real.observacao, pr_real.is_faturado
-                    FROM procedimento_realizado pr_real
-                    INNER JOIN procedimento pr ON pr_real.id_procedimento = pr.id_procedimento
-                    WHERE pr_real.id_atendimento = %s AND pr_real.is_removido = FALSE
-                """, (id_atendimento,))
-                lista_procedimentos = cursor.fetchall()
+                lista_procedimentos = (
+                    db.session.query(
+                        Procedimento.id_procedimento,
+                        Procedimento.nome,
+                        ProcedimentoRealizado.quantidade,
+                        ProcedimentoRealizado.tempo_real_minutos,
+                        ProcedimentoRealizado.observacao,
+                        ProcedimentoRealizado.is_faturado
+                    )
+                    .join(
+                        ProcedimentoRealizado,
+                        Procedimento.id_procedimento == ProcedimentoRealizado.id_procedimento
+                    )
+                    .filter(
+                        ProcedimentoRealizado.id_atendimento == id_atendimento,
+                        ProcedimentoRealizado.is_removido == False
+                    )
+                    .all()
+                )
+
             else:
                 feedback = "Erro: Atendimento não encontrado."
 
     except Exception as e:
-        database.conexao.rollback()
+        db.session.rollback()
         feedback = f"Erro na operação: {e}"
-    finally:
-        cursor.close()
-
+   
     # Retorna o HTML passando as variáveis padronizadas
     return render_template(
         "remover_procedimento.html", 
