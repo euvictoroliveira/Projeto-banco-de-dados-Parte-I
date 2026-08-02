@@ -4,9 +4,9 @@
 
 from flask import Blueprint, render_template, request
 from datetime import date
-from sqlalchemy import select, func, extract, and_
+from sqlalchemy import select, func, extract, and_, case, cast, Numeric
 from sqlalchemy.orm import Session
-from models import Residente, Pessoa, Atendimento, Preceptor, Unidade, Escala
+from models import Residente, Pessoa, Atendimento, Preceptor, Unidade, Escala, Procedimento, ProcedimentoRealizado
 import database
 
 #ranking_residentes_bp = Blueprint("ranking_residentes", __name__)
@@ -94,6 +94,59 @@ def get_plantoes_por_unidade(ano, mes, id_residente=None):
     
     return query.all()
 
+# percentual de procedimentos de alto risco realizados por cada residente
+def get_percentual_alto_risco_por_residente():
+    # Total de procedimentos realizados pelo residente
+    # se o residente não tem nenhum procedimento, vira 0
+    total_procedimentos = func.coalesce(
+        func.sum(ProcedimentoRealizado.quantidade), 0
+    )
+
+    # Total de procedimentos de risco alto
+    procedimentos_alto_risco = func.coalesce(
+        func.sum(
+            case(
+                (Procedimento.nivel_risco == 'ALTO', ProcedimentoRealizado.quantidade),
+                else_=0
+            )
+        ), 0
+    )
+
+    # NULLIF evita divisão por zero.
+    # COALESCE por fora transforma o resultado nulo (quando o residente não tem nenhum
+    # procedimento) em 0%, em vez de deixar como "sem dado".
+    percentual_alto_risco = func.coalesce(
+        func.round(
+            cast(procedimentos_alto_risco, Numeric) * 100 /
+            cast(func.nullif(total_procedimentos, 0), Numeric),
+            2
+        ), 0
+    )
+
+    query = database.db.session.query(
+        Pessoa.nome,
+        total_procedimentos.label('total_procedimentos'),
+        percentual_alto_risco.label('percentual_alto_risco')
+    ).select_from(Residente).outerjoin(
+        Atendimento, Atendimento.id_residente == Residente.id_profissional
+    ).outerjoin(
+        ProcedimentoRealizado,
+        and_(
+            ProcedimentoRealizado.id_atendimento == Atendimento.id_atendimento,
+            ProcedimentoRealizado.is_removido == False
+        )
+    ).outerjoin(
+        Procedimento, Procedimento.id_procedimento == ProcedimentoRealizado.id_procedimento
+    ).outerjoin(
+        Pessoa, Pessoa.id_pessoa == Residente.id_profissional
+    ).group_by(
+        Pessoa.id_pessoa, Pessoa.nome
+    ).order_by(
+        Pessoa.nome
+    )
+
+    return query.all()
+
 @estatisticas_bp.route('/estatisticas', methods=['GET'])
 def estatisticas():
 
@@ -132,6 +185,7 @@ def estatisticas():
 
     lista_residentes = get_lista_residentes()
     plantoes_por_unidade = get_plantoes_por_unidade(ano_plantoes, mes_plantoes, id_residente_selecionado)
+    percentual_alto_risco = get_percentual_alto_risco_por_residente()
 
     return render_template(
         'estatisticas.html',
@@ -141,7 +195,8 @@ def estatisticas():
         plantoes_por_unidade=plantoes_por_unidade,
         mes_plantoes_selecionado=mes_plantoes_selecionado,
         lista_residentes=lista_residentes,
-        id_residente_selecionado=id_residente_selecionado
+        id_residente_selecionado=id_residente_selecionado,
+        percentual_alto_risco=percentual_alto_risco
     )
 
 # Tempo médio de duração dos atendimentos por residente

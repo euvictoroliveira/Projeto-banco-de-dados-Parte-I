@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Dra. Yuska - atendimentos</title>
+    <title>Hospital Dra. Yuska - estatísticas</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body class="pagina-interna">
@@ -13,8 +13,9 @@
 
     <h1>Gestão Hospitalar - Dra. Yuska</h1>
     <h2>Estatísticas</h2>
+</div>
 
-    <div class="container">
+<div class="container">
 
     <h2>Ranking de atendimentos de residentes</h2>
     <table>
@@ -36,9 +37,9 @@
         {% endfor %}
     </table>
 
-    </div>
+</div>
 
-    <div class="container">
+<div class="container">
 
     <h2>Preceptores com mais de 5 atendimentos no mês</h2>
 
@@ -72,9 +73,9 @@
         {% endfor %}
     </table>
 
-    </div>
+</div>
 
-    <div class="container">
+<div class="container">
 
     <h2>Plantões escalados por unidade, no mês</h2>
 
@@ -115,7 +116,31 @@
         {% endfor %}
     </table>
 
-    </div>
+</div>
+
+<div class="container">
+
+    <h2>Percentual de procedimentos de alto risco por residente</h2>
+
+    <table>
+        <tr>
+            <th>Residente</th>
+            <th>Total de Procedimentos</th>
+            <th>% de Alto Risco</th>
+        </tr>
+
+        {% for nome, total, percentual in percentual_alto_risco %}
+        <tr>
+            <td>{{ nome }}</td>
+            <td>{{ total }}</td>
+            <td>{{ "%.2f"|format(percentual) }}%</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="3" class="vazio">Nenhum residente encontrado.</td>
+        </tr>
+        {% endfor %}
+    </table>
 
 </div>
 
