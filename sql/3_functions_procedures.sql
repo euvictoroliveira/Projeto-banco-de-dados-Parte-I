@@ -1,9 +1,6 @@
-
 -- procedures:
 
--- ###################################################################################
 -- Procedure para tempo médio de espera 
--- ###################################################################################
 CREATE OR REPLACE PROCEDURE sp_calcular_tempo_medio_espera()
 LANGUAGE plpgsql
 AS $$
@@ -33,15 +30,16 @@ BEGIN
 END;
 $$;
 
--- ###################################################################################
+
+-- --------------------------------------------------------------------------------------------------
 -- Procedure para reajustar escala
--- ###################################################################################
 CREATE OR REPLACE PROCEDURE sp_reajustar_escala(
     p_id_residente INTEGER,
     p_dia_atual VARCHAR,
     p_turno_atual VARCHAR,
     p_dia_novo VARCHAR,
-    p_turno_novo VARCHAR
+    p_turno_novo VARCHAR,
+    INOUT p_mensagem VARCHAR DEFAULT NULL -- para retornar mensagem de saída
 )
 LANGUAGE plpgsql
 AS $$
@@ -53,6 +51,7 @@ DECLARE
 	v_data_plantao TIMESTAMP;
     v_atualizadas INTEGER := 0;
     v_puladas INTEGER := 0;
+    v_total INTEGER := 0;
 
 BEGIN
     -- percorre todas as escalas do residente que estão no dia e turno atuais
@@ -63,6 +62,7 @@ BEGIN
         AND dia_semana = p_dia_atual
         AND turno = p_turno_atual
     LOOP
+        v_total := v_total + 1;
 
         -- checando conflito se existe outra escala do residente na mesma unidade, 
         -- no dia e turno de destino
@@ -88,20 +88,39 @@ BEGIN
         END IF; 
     END LOOP; 
 
-    -- obs: estou deixando a saída com um RAISE NOTE para confirmar o que rodou, porém
-    --      tem a opção de fazer com que a rota do flask mostre na tela uma saída
-    --      (ex: 3 escalas foram atualizadas e 1 foi pulada por presença de conflito)!
-    --      portantanto, fica à decisão quando for pensado sobre a construção da interface.
+    -- mensagem de retorno de acordo com o resultado do ajuste
+    IF v_total = 0 THEN
+        p_mensagem := FORMAT(
+            'Nenhuma escala encontrada para o residente %s no dia %s turno %s.',
+            p_id_residente, p_dia_atual, p_turno_atual
+        );
+    ELSIF v_atualizadas > 0 AND v_puladas = 0 THEN
+        p_mensagem := FORMAT(
+            'Escala alterada com sucesso: %s escala(s) movida(s) para %s no turno da %s.',
+            v_atualizadas, p_dia_novo, p_turno_novo
+        );
+    ELSIF v_atualizadas > 0 AND v_puladas > 0 THEN
+        p_mensagem := FORMAT(
+            'Escala parcialmente alterada: %s movida(s) para %s turno %s e %s mantida(s) por conflito de horário.',
+            v_atualizadas, p_dia_novo, p_turno_novo, v_puladas
+        );
+    ELSE
+        p_mensagem := FORMAT(
+            'Escala mantida: por existir conflito em %s turno na %s.',
+            v_puladas, p_dia_novo, p_turno_novo
+        );
+    END IF;
 
+    -- obs: mantendo o RAISE NOTICE também, para acompanhamento no console/log do banco
     RAISE NOTICE 'As escalas do residente % foram reajustadas: % atualizada(s) e % mantida(s)',
         p_id_residente, v_atualizadas, v_puladas;
         
 END;
 $$;
 
--- ###################################################################################
+
+-- -------------------------------------------------------------------------------------------------
 -- procedure para registrar um atendimento completo
--- ###################################################################################
 CREATE OR REPLACE PROCEDURE sp_registrar_atendimento_completo(
     p_data_hora TIMESTAMP,
     p_duracao_minutos INTEGER,
@@ -243,12 +262,12 @@ BEGIN
 END;
 $$;
 
+
+-- -------------------------------------------------------------------------------------------------
 -- Functions:
 
--- ###################################################################################
 -- Function para atualizar o tempo medio dos procedimentos
 -- Foi preferido function ao invés de procedure pois é possível fazer os updates de forma direcionada
--- ###################################################################################
 CREATE OR REPLACE FUNCTION fn_atualiza_media_procedimentos()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -266,11 +285,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- ###################################################################################
+
+-- -------------------------------------------------------------------------------------------------
 -- Function para auditoria dos atendimentos
 -- Registra automaticamente INSERT, UPDATE e DELETE na tabela atendimento
--- ###################################################################################
-
 CREATE OR REPLACE FUNCTION fn_audita_atendimento()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -352,9 +370,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- ###################################################################################
+
+-- -----------------------------------------------------------------------------------------------
 -- Function para checar sobreposição de escala
--- ###################################################################################
 CREATE OR REPLACE FUNCTION fn_check_sobreposicao_escala()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -364,13 +382,13 @@ BEGIN
         SELECT 1
         FROM escala
         WHERE id_residente = NEW.id_residente
+        AND dia_semana = NEW.dia_semana
         AND turno = NEW.turno
-        AND data_semana = NEW.data_semana
         AND id_unidade <> NEW.id_unidade
         AND id_escala <> NEW.id_escala
     ) THEN
-        RAISE EXCEPTION 'Residente % já está escalado em outra unidade no turno %.',
-            NEW.id_residente, NEW.turno;
+        RAISE EXCEPTION 'Residente % já está escalado em outra unidade no dia % turno %.',
+            NEW.id_residente, NEW.dia_semana, NEW.turno;
     END IF;
 
     RETURN NEW;

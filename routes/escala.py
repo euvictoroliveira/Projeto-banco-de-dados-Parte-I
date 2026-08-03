@@ -52,19 +52,19 @@ def atualizar_escala():
     dia_novo = request.form.get('dia_novo')
     turno_novo = request.form.get('turno_novo')
 
-
     if not (id_residente and dia_atual and turno_atual and dia_novo and turno_novo):
         return "Erro: Todos os campos são obrigatórios para reajustar a escala."
 
     try:
-
+        # Note que adicionamos um parâmetro extra (NULL) para receber o INOUT
         comando_sql = text("""
             CALL sp_reajustar_escala(
                 :p_id_res,
                 :p_dia_atual,
                 :p_turno_atual,
                 :p_dia_novo,
-                :p_turno_novo
+                :p_turno_novo,
+                NULL
             )
         """)
 
@@ -76,13 +76,15 @@ def atualizar_escala():
             'p_turno_novo': turno_novo
         }
 
-
-        db.session.execute(comando_sql, parametros)
+        # Executa a procedure e captura o retorno do INOUT
+        resultado = db.session.execute(comando_sql, parametros)
+        mensagem_retorno = resultado.scalar() # Extrai o texto retornado
+        
         db.session.commit()
         
-        return "Escala reajustada com sucesso!"
+        # Retornamos a mensagem gerada dinamicamente pela Procedure
+        return mensagem_retorno
 
     except Exception as e:
-
         db.session.rollback()
         return f"Erro na operação: {e}"
