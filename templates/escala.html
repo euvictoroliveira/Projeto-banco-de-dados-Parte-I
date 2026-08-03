@@ -12,7 +12,6 @@
 
 <div class="painel">
 
-    <!-- Exibe a mensagem de sucesso ou erro vinda do Python -->
     {% if feedback %}
         <div class="feedback-msg" style="margin-bottom: 15px; font-weight: bold;">
             {{ feedback }}
@@ -44,14 +43,13 @@
                 <td>{{ escala.nome_preceptor }}</td>
                 <td>{{ escala.nome_unidade }}</td>
                 
-                <!-- Coluna de Ação com o Formulário -->
                 <td>
                     <form action="/escala" method="POST" style="display: flex; gap: 5px; align-items: center;">
                         
                         <input type="hidden" name="acao" value="atualizar">
                         <input type="hidden" name="id_residente" value="{{ escala.id_residente }}">
-                        <input type="hidden" name="dia_atual" value="{{ escala.dia_atual }}">
-                        <input type="hidden" name="turno_atual" value="{{ escala.turno_atual }}">
+                        <input type="hidden" name="dia_atual" value="{{ escala.dia_semana }}">
+                        <input type="hidden" name="turno_atual" value="{{ escala.turno }}">
                         
                         <select name="dia_novo" required>
                             <option value="" disabled selected>Novo Dia...</option>
