@@ -26,10 +26,7 @@ SELECT DISTINCT
     u.nome AS unidade,
 
     e.dia_semana,
-    e.turno,
-    e.dia_plantao,
-    e.mes_plantao,
-    e.ano_plantao
+    e.turno
 
 FROM escala e
 

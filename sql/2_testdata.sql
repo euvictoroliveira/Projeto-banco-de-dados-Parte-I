@@ -115,15 +115,14 @@ INSERT INTO PROCEDIMENTO_REALIZADO (id_atendimento, id_procedimento, quantidade,
 (15, 4, 1, 55, 'RCP (ALTO)', FALSE, FALSE, '2023-10-12 16:15:00');
 
 
-INSERT INTO ESCALA (id_escala, id_unidade, dia_semana, turno, id_residente, id_preceptor, dia_plantao, mes_plantao, ano_plantao) VALUES
-(1, 1, 'Segunda', 'Manhã', 6, 11, 01, 12, 2025),
-(2, 2, 'Segunda', 'Tarde', 7, 12, 03, 09, 2025),
-(3, 3, 'Terça', 'Noite', 8, 13, 11, 06, 2026),
--- Plantões adicionados no mês atual da execução (07/2026)
-(4, 1, 'Segunda', 'Manhã', 6, 11, 06, 07, 2026),
-(5, 2, 'Terça', 'Tarde', 7, 12, 07, 07, 2026),
-(6, 1, 'Quarta', 'Noite', 6, 11, 08, 07, 2026),
-(7, 3, 'Quinta', 'Manhã', 10, 15, 09, 07, 2026);
+INSERT INTO ESCALA (id_escala, id_unidade, dia_semana, turno, id_residente, id_preceptor) VALUES
+(1, 1, 'Segunda', 'Manhã', 6, 11),
+(2, 2, 'Segunda', 'Tarde', 7, 12),
+(3, 3, 'Terça', 'Noite', 8, 13),
+(4, 1, 'Segunda', 'Manhã', 6, 11),
+(5, 2, 'Terça', 'Tarde', 7, 12),
+(6, 1, 'Quarta', 'Noite', 6, 11),
+(7, 3, 'Quinta', 'Manhã', 10, 15);
 
 -- Internação FINALIZADA (Paciente teve alta)
 INSERT INTO internacao (id_paciente, id_unidade, data_hora_entrada, data_hora_saida) 
