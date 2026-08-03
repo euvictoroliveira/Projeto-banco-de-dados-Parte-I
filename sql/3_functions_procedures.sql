@@ -364,15 +364,12 @@ BEGIN
         SELECT 1
         FROM escala
         WHERE id_residente = NEW.id_residente
-        AND dia_plantao = NEW.dia_plantao
-        AND mes_plantao = NEW.mes_plantao
-        AND ano_plantao = NEW.ano_plantao
         AND turno = NEW.turno
         AND id_unidade <> NEW.id_unidade
         AND id_escala <> NEW.id_escala
     ) THEN
-        RAISE EXCEPTION 'Residente % já está escalado em outra unidade no turno % do dia %/%/%.',
-            NEW.id_residente, NEW.turno, NEW.dia_plantao, NEW.mes_plantao, NEW.ano_plantao;
+        RAISE EXCEPTION 'Residente % já está escalado em outra unidade no turno %.',
+            NEW.id_residente, NEW.turno;
     END IF;
 
     RETURN NEW;

@@ -119,7 +119,7 @@ INSERT INTO ESCALA (id_escala, id_unidade, dia_semana, turno, id_residente, id_p
 (1, 1, 'Segunda', 'Manhã', 6, 11),
 (2, 2, 'Segunda', 'Tarde', 7, 12),
 (3, 3, 'Terça', 'Noite', 8, 13),
-(4, 1, 'Segunda', 'Manhã', 6, 11),
+(4, 1, 'Segunda', 'Tarde', 6, 11),
 (5, 2, 'Terça', 'Tarde', 7, 12),
 (6, 1, 'Quarta', 'Noite', 6, 11),
 (7, 3, 'Quinta', 'Manhã', 10, 15);
