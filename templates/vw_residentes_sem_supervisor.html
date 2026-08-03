@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Residentes sem Supervisor{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <span class="eyebrow">Views</span>
+    <h1>Residentes sem Supervisor</h1>
+    <p class="page-subtitle">
+        Residentes escalados com preceptores que não possuem a titulação esperada.
+    </p>
+</div>
+
+<div class="painel">
+
+    {% if residentes %}
+
+    <table class="tabela">
+        <thead>
+            <tr>
+                <th>ID Residente</th>
+                <th>Residente</th>
+                <th>ID Preceptor</th>
+                <th>Preceptor</th>
+                <th>Titulação</th>
+                <th>Unidade</th>
+                <th>Dia</th>
+                <th>Turno</th>
+                <th>Plantão</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for r in residentes %}
+
+            <tr>
+                <td>{{ r.id_residente }}</td>
+                <td>{{ r.nome_residente }}</td>
+                <td>{{ r.id_preceptor }}</td>
+                <td>{{ r.nome_preceptor }}</td>
+                <td>{{ r.titulacao }}</td>
+                <td>{{ r.unidade }}</td>
+                <td>{{ r.dia_semana }}</td>
+                <td>{{ r.turno }}</td>
+                <td>{{ "%02d"|format(r.dia_plantao) }}/{{ "%02d"|format(r.mes_plantao) }}/{{ r.ano_plantao }}</td>
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+    {% else %}
+
+        <p>Nenhum registro encontrado.</p>
+
+    {% endif %}
+
+</div>
+
+<div style="margin-top:25px;">
+    <a href="/views" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-left"></i>
+        Voltar
+    </a>
+</div>
+
+{% endblock %}
