@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Auditoria de Atendimentos{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <span class="eyebrow">Triggers</span>
+    <h1>Auditoria de Atendimentos</h1>
+    <p class="page-subtitle">
+        Registros gerados automaticamente pelo trigger
+        <strong>trg_audita_atendimento</strong>.
+    </p>
+</div>
+
+<div class="painel">
+
+    {% if auditorias %}
+
+    <table class="tabela">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Atendimento</th>
+                <th>Operação</th>
+                <th>Usuário</th>
+                <th>Data/Hora</th>
+                <th>Dados Antigos</th>
+                <th>Dados Novos</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for auditoria in auditorias %}
+            <tr>
+                <td>{{ auditoria.id_auditoria }}</td>
+                <td>{{ auditoria.id_atendimento }}</td>
+                <td>{{ auditoria.operacao }}</td>
+                <td>{{ auditoria.usuario_bd }}</td>
+                <td>{{ auditoria.data_hora }}</td>
+
+                <td>
+                    {% if auditoria.dados_antigos %}
+                        <pre>{{ auditoria.dados_antigos }}</pre>
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% if auditoria.dados_novos %}
+                        <pre>{{ auditoria.dados_novos }}</pre>
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+
+            </tr>
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    {% else %}
+
+    <p>Nenhum registro de auditoria encontrado.</p>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

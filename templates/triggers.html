@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Triggers{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <span class="eyebrow">Banco de Dados</span>
+    <h1>Triggers</h1>
+    <p class="page-subtitle">
+        Visualização dos resultados produzidos pelos gatilhos implementados no banco de dados.
+    </p>
+</div>
+
+<div class="grid-menu">
+
+    <a href="/triggers/auditoria" class="card-botao">
+        <span class="icone">
+            <i class="fa-solid fa-clipboard-check"></i>
+        </span>
+        Auditoria de Atendimentos
+    </a>
+
+    <a href="/triggers/media_procedimentos" class="card-botao">
+        <span class="icone">
+            <i class="fa-solid fa-chart-line"></i>
+        </span>
+        Médias dos Procedimentos
+    </a>
+
+</div>
+
+{% endblock %}

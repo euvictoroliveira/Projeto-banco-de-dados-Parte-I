@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Tempo Médio dos Procedimentos{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <span class="eyebrow">Trigger</span>
+    <h1>Tempo Médio dos Procedimentos</h1>
+    <p class="page-subtitle">
+        Valores atualizados automaticamente pela trigger
+        <strong>trg_atualiza_media_procedimentos</strong>.
+    </p>
+</div>
+
+<div class="painel">
+
+    <table class="tabela">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Procedimento</th>
+                <th>Nível de Risco</th>
+                <th>Tempo Médio (min)</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for procedimento in procedimentos %}
+            <tr>
+                <td>{{ procedimento.codigo }}</td>
+                <td>{{ procedimento.nome }}</td>
+                <td>{{ procedimento.nivel_risco }}</td>
+                <td>{{ procedimento.tempo_medio_minutos }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" style="text-align:center;">
+                    Nenhum procedimento encontrado.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

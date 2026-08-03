@@ -19,6 +19,8 @@ from routes.escala import escala_bp
 
 from routes.views import views_bp
 
+from routes.triggers import triggers_bp
+
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:""@localhost:5432/projeto_hospital'
@@ -35,6 +37,7 @@ app.register_blueprint(paciente_bp)
 app.register_blueprint(atendimento_bp)
 app.register_blueprint(home_bp)
 app.register_blueprint(views_bp)
+app.register_blueprint(triggers_bp)
 
 
 @app.route('/')
