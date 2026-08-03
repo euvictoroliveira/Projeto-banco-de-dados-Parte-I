@@ -10,8 +10,6 @@ from routes.atendimento import atendimento_bp
 
 from routes.estatisticas import estatisticas_bp
 
-from routes.remover_Procedimento import remover_procedimento_bp
-
 from routes.paciente import paciente_bp
 
 from routes.home import home_bp
