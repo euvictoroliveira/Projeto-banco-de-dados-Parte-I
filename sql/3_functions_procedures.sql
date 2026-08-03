@@ -365,6 +365,7 @@ BEGIN
         FROM escala
         WHERE id_residente = NEW.id_residente
         AND turno = NEW.turno
+        AND data_semana = NEW.data_semana
         AND id_unidade <> NEW.id_unidade
         AND id_escala <> NEW.id_escala
     ) THEN

@@ -46,7 +46,7 @@ def simular_concorrencia(app):
                 )
                 db.session.add(nova_escala)
                 db.session.commit()
-                logging.info("Escala INSERIDA com sucesso!")
+                logging.info("Escala inserida com sucesso!")
                 
             except Exception as e:
                 db.session.rollback()

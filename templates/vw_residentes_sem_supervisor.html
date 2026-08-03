@@ -26,7 +26,6 @@
                 <th>Unidade</th>
                 <th>Dia</th>
                 <th>Turno</th>
-                <th>Plantão</th>
             </tr>
         </thead>
 
@@ -43,7 +42,6 @@
                 <td>{{ r.unidade }}</td>
                 <td>{{ r.dia_semana }}</td>
                 <td>{{ r.turno }}</td>
-                <td>{{ "%02d"|format(r.dia_plantao) }}/{{ "%02d"|format(r.mes_plantao) }}/{{ r.ano_plantao }}</td>
             </tr>
 
         {% endfor %}
