@@ -1,7 +1,7 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
 from models import Pessoa, Escala, Unidade
 from sqlalchemy.orm import aliased 
-from sqlalchemy import func
+from sqlalchemy import func, text
 from models import Escala
 from database import db
 
@@ -10,8 +10,12 @@ escala_bp = Blueprint("escala", __name__)
 @escala_bp.route('/escala', methods=['GET','POST'])
 def escala():
 
+    if request.method == 'POST':
+        feedback = atualizar_escala()
+
     lista_escala = listar_escalas()
-    return render_template("escala.html", lista_escala=lista_escala)
+
+    return render_template("escala.html", feedback=feedback, lista_escala=lista_escala)
 
 def listar_escalas():
     PessoaResidente = aliased(Pessoa)
@@ -19,9 +23,7 @@ def listar_escalas():
 
     consulta = db.session.query(
 
-        Escala.id_residente,
-        Escala.dia_plantao.label('dia_atual'),
-        Escala.turno.label('turno_atual'),    
+        Escala.id_residente, 
         PessoaResidente.nome.label('nome_residente'),
         Escala.dia_semana,
         Escala.turno,
@@ -35,8 +37,6 @@ def listar_escalas():
         PessoaPreceptor, PessoaPreceptor.id_pessoa == Escala.id_preceptor
     ).join(
         Unidade, Unidade.id_unidade == Escala.id_unidade 
-    ).order_by(
-        Escala.ano_plantao.desc(), Escala.mes_plantao.desc(), Escala.dia_plantao.desc()
     )
 
     return consulta.all()
