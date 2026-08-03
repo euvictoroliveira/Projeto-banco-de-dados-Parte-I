@@ -403,6 +403,33 @@ button:hover,
    Tabelas
    =================================================================== */
 
+tabela-scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+ 
+.tabela-scroll table {
+    min-width: 700px;
+}
+ 
+.celula-json {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-width: 320px;
+    color: var(--color-text-muted);
+}
+ 
+.celula-json pre {
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
 table {
     border-collapse: collapse;
     width: 100%;

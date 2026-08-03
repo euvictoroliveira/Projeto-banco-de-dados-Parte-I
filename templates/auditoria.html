@@ -16,7 +16,8 @@
 
     {% if auditorias %}
 
-    <table class="tabela">
+   <div class="tabela-scroll">
+      <table>
         <thead>
             <tr>
                 <th>ID</th>
@@ -39,7 +40,7 @@
                 <td>{{ auditoria.usuario_bd }}</td>
                 <td>{{ auditoria.data_hora }}</td>
 
-                <td>
+                <td class="celula-json">
                     {% if auditoria.dados_antigos %}
                         <pre>{{ auditoria.dados_antigos }}</pre>
                     {% else %}
@@ -47,7 +48,7 @@
                     {% endif %}
                 </td>
 
-                <td>
+                <td class="celula-json">
                     {% if auditoria.dados_novos %}
                         <pre>{{ auditoria.dados_novos }}</pre>
                     {% else %}
@@ -60,7 +61,9 @@
 
         </tbody>
 
-    </table>
+      </table>
+      
+    </div>
 
     {% else %}
 

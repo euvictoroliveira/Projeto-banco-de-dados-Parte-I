@@ -42,6 +42,7 @@ def media_procedimentos():
                 id_procedimento,
                 codigo,
                 nome,
+                nivel_risco,
                 tempo_medio_minutos
             FROM procedimento
             ORDER BY nome
