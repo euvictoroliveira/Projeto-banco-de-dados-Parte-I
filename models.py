@@ -122,9 +122,6 @@ class Escala(db.Model):
     turno = db.Column(db.String(10), nullable=False)
     id_residente = db.Column(db.Integer, db.ForeignKey('residente.id_profissional'), nullable=False)
     id_preceptor = db.Column(db.Integer, db.ForeignKey('preceptor.id_profissional'), nullable=False)
-    dia_plantao = db.Column(db.Integer, nullable=False)
-    mes_plantao = db.Column(db.Integer, nullable=False)
-    ano_plantao = db.Column(db.Integer, nullable=False)
 
 
 class ProcedimentoRealizado(db.Model):
