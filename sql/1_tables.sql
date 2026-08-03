@@ -125,7 +125,9 @@ CREATE TABLE escala (
     dia_semana VARCHAR(15) NOT NULL,
     turno VARCHAR(10) NOT NULL,
     id_residente INTEGER NOT NULL,
-    id_preceptor INTEGER NOT NULL
+    id_preceptor INTEGER NOT NULL,
+
+    UNIQUE(id_unidade, dia_semana, turno, id_residente)
 );
 
 -- Cria a tabela de procedimento realizado
