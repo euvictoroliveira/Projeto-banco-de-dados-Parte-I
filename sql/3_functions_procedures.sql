@@ -1,9 +1,6 @@
-
 -- procedures:
 
--- ###################################################################################
 -- Procedure para tempo médio de espera 
--- ###################################################################################
 CREATE OR REPLACE PROCEDURE sp_calcular_tempo_medio_espera()
 LANGUAGE plpgsql
 AS $$
@@ -33,9 +30,9 @@ BEGIN
 END;
 $$;
 
--- ###################################################################################
+
+-- --------------------------------------------------------------------------------------------------
 -- Procedure para reajustar escala
--- ###################################################################################
 CREATE OR REPLACE PROCEDURE sp_reajustar_escala(
     p_id_residente INTEGER,
     p_dia_atual VARCHAR,
@@ -99,9 +96,9 @@ BEGIN
 END;
 $$;
 
--- ###################################################################################
+
+-- -------------------------------------------------------------------------------------------------
 -- procedure para registrar um atendimento completo
--- ###################################################################################
 CREATE OR REPLACE PROCEDURE sp_registrar_atendimento_completo(
     p_data_hora TIMESTAMP,
     p_duracao_minutos INTEGER,
@@ -243,12 +240,12 @@ BEGIN
 END;
 $$;
 
+
+-- -------------------------------------------------------------------------------------------------
 -- Functions:
 
--- ###################################################################################
 -- Function para atualizar o tempo medio dos procedimentos
 -- Foi preferido function ao invés de procedure pois é possível fazer os updates de forma direcionada
--- ###################################################################################
 CREATE OR REPLACE FUNCTION fn_atualiza_media_procedimentos()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -266,11 +263,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- ###################################################################################
+
+-- -------------------------------------------------------------------------------------------------
 -- Function para auditoria dos atendimentos
 -- Registra automaticamente INSERT, UPDATE e DELETE na tabela atendimento
--- ###################################################################################
-
 CREATE OR REPLACE FUNCTION fn_audita_atendimento()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -352,9 +348,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- ###################################################################################
+
+-- -----------------------------------------------------------------------------------------------
 -- Function para checar sobreposição de escala
--- ###################################################################################
 CREATE OR REPLACE FUNCTION fn_check_sobreposicao_escala()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -364,13 +360,13 @@ BEGIN
         SELECT 1
         FROM escala
         WHERE id_residente = NEW.id_residente
+        AND dia_semana = NEW.dia_semana
         AND turno = NEW.turno
-        AND data_semana = NEW.data_semana
         AND id_unidade <> NEW.id_unidade
         AND id_escala <> NEW.id_escala
     ) THEN
-        RAISE EXCEPTION 'Residente % já está escalado em outra unidade no turno %.',
-            NEW.id_residente, NEW.turno;
+        RAISE EXCEPTION 'Residente % já está escalado em outra unidade no dia % turno %.',
+            NEW.id_residente, NEW.dia_semana, NEW.turno;
     END IF;
 
     RETURN NEW;
