@@ -5,37 +5,56 @@ Repositório voltado para as implementações relacionadas à primeira parte do 
 
 ```
 Projeto-banco-de-dados-Parte-I/
-├── app.py                                # Arquivo principal da aplicação Flask (rota '/' e registro dos blueprints)
-├── database.py                           # Configuração e conexão com o banco de dados
+├── app.py                                # Arquivo principal da aplicação Flask (registro dos blueprints)
+├── database.py                           # Instância do SQLAlchemy usada em toda a aplicação
+├── models.py                             # Modelos SQLAlchemy (mapeamento das tabelas do banco)
+├── concorrencia.py                       # Simulação de concorrência (lock) ao escalar um residente
 ├── requirements.txt                      # Dependências do projeto
-├── init.sql                              # Script de criação e população do banco de dados
 ├── README.md                             # Este arquivo
 ├── .gitignore
 ├── static/
 │   └── style.css                         # Estilos compartilhados por todos os templates
 ├── templates/                            # Pasta com os templates HTML
-│   ├── index.html                        # Página inicial com menu principal
-│   ├── listar_atendimento.html           # Listagem de atendimentos (com busca por CPF)
-│   ├── novo_atendimento.html             # Cadastro de novo atendimento
-│   ├── listar_procedimentos.html         # Procedimentos realizados em um atendimento
-│   ├── remover_procedimento.html         # Remoção de procedimento realizado
-│   ├── atualizar_paciente.html           # Atualização de dados/endereço do paciente
-│   ├── pacientes_sem_alto.html           # Pacientes sem procedimentos de risco ALTO
-│   ├── estatisticas.html                 # Ranking de residentes, preceptores e plantões
-│   └── tempo_medio_residentes.html       # Tempo médio de duração dos atendimentos por residente
+│   ├── base.html                         # Layout base, herdado pelos demais templates
+│   ├── index.html                        # Dashboard inicial (contadores e ranking)
+│   ├── atendimento.html                  # Registrar, listar e remover atendimentos/procedimentos
+│   ├── paciente.html                     # Atualizar paciente e listas relacionadas a pacientes
+│   ├── escala.html                       # Listagem e reajuste de escalas
+│   ├── estatisticas.html                 # Ranking, plantões e percentuais por residente/preceptor
+│   ├── tempo_medio_residentes.html       # Tempo médio de duração dos atendimentos por residente
+│   ├── preceptores_flamengo.html         # Preceptores de pacientes flamenguistas
+│   ├── tempo_medio_espera.html           # Não usado por nenhuma rota (dado já exibido dentro de estatisticas.html)
+│   ├── views.html                        # Menu das views do banco
+│   ├── vw_pacientes_internados.html      # View: pacientes internados no momento
+│   ├── vw_residentes_sem_supervisor.html # View: residentes sem preceptor com titulação de Doutor
+│   ├── vw_estatisticas_mensais.html      # View: estatísticas de atendimentos por mês/unidade
+│   ├── triggers.html                     # Menu das triggers do banco
+│   ├── auditoria.html                    # Histórico de INSERT/UPDATE/DELETE em atendimento
+│   └── media_procedimentos.html          # Tempo médio por procedimento (atualizado por trigger)
 ├── routes/                               # Pasta com as rotas (blueprints) da aplicação
-│   ├── atendimento.py                    # Blueprints de atendimentos, novo atendimento e procedimentos
-│   ├── paciente.py                       # Blueprints de atualização de paciente e pacientes sem alto risco
-│   ├── remover_Procedimento.py           # Blueprint de remoção de procedimento realizado
-│   └── estatisticas.py                   # Blueprint das consultas analíticas/estatísticas
+│   ├── home.py                           # Blueprint do dashboard inicial ('/')
+│   ├── atendimento.py                    # Blueprint de atendimentos (registrar, listar, remover procedimento)
+│   ├── paciente.py                       # Blueprint de paciente (atualizar dados, listas)
+│   ├── escala.py                         # Blueprint de escala (listar e reajustar)
+│   ├── estatisticas.py                   # Blueprint das consultas analíticas/estatísticas
+│   ├── views.py                          # Blueprint das views do banco
+│   └── triggers.py                       # Blueprint das triggers do banco (auditoria e médias)
 ├── include/
-│   └── verify.py                         # Validação de CPF, usada pelas rotas
+│   └── verify.py                         # Validação de CPF e CRM, usada pelas rotas
+├── sql/                                  # Scripts de criação e população do banco (executados em ordem)
+│   ├── init.sql                          # Orquestra a execução dos scripts abaixo, em ordem
+│   ├── 1_tables.sql                      # Criação das tabelas e relacionamentos
+│   ├── 2_testdata.sql                    # População do banco com dados de teste
+│   ├── 3_functions_procedures.sql        # Functions e procedures (escala, atendimento, tempo de espera)
+│   ├── 4_views.sql                       # Views de consulta (internados, sem supervisor, estatísticas)
+│   └── 5_triggers.sql                    # Triggers (auditoria, sobreposição de escala, média de procedimento)
 └── docs/                                 # Documentação de modelagem entregue na Etapa 1
-    ├── modelo entidade-relacionamento/
-    │   └── Relatorio MER.pdf
-    └── diagrama entidade-relacionamento/
-        ├── diagrama ER.pdf
-        └── Relatorio ER.pdf
+    ├── diagrama entidade-relacionamento/
+    │   ├── Diagrama ER.pdf
+    │   └── RELATÓRIO ER.pdf
+    └── diagrama relacional/
+        ├── Diagrama relacional.pdf
+        └── Relatorio Normalização.pdf
 ```
 
 ## Instruções para instalação e execução dos scripts
@@ -84,19 +103,26 @@ python app.py
 
 | Rota | Método | Descrição |
 |---|---|---|
-| `/` | GET | Menu principal |
-| `/listar_atendimentos` | GET | Lista atendimentos, com busca por CPF do paciente |
-| `/novo_atendimento` | GET, POST | Cadastra um novo atendimento |
-| `/listar_procedimentos` | GET | Lista os procedimentos realizados em um atendimento |
-| `/remover_procedimento` | GET, POST | Remove um procedimento realizado |
-| `/atualizar_paciente` | GET, POST | Atualiza endereço e número de convênio do paciente |
-| `/pacientes_sem_alto` | GET | Lista pacientes que nunca realizaram procedimento de risco ALTO |
-| `/estatisticas` | GET | Ranking de residentes, preceptores com mais de 5 atendimentos no mês e plantões escalados por unidade |
+| `/` | GET | Dashboard inicial: contadores gerais e ranking de residentes |
+| `/atendimento` | GET, POST | Registrar atendimento, listar atendimentos (busca por CPF) e remover procedimento realizado |
+| `/paciente` | GET, POST | Atualizar dados/convênio do paciente, listar pacientes sem procedimento de risco ALTO e última consulta de cada paciente |
+| `/escala` | GET, POST | Listar escalas e reajustar dia/turno de um residente |
+| `/estatisticas` | GET | Ranking de residentes, preceptores com mais de 5 atendimentos no mês, plantões por unidade e percentual de procedimentos de alto risco |
 | `/tempo_medio_residentes` | GET | Tempo médio de duração dos atendimentos, por residente |
+| `/preceptores_flamengo` | GET | Lista os preceptores que atenderam pacientes flamenguistas |
+| `/views` | GET | Menu com as views disponíveis do banco |
+| `/vw_pacientes_internados` | GET | View: pacientes atualmente internados |
+| `/vw_residentes_sem_supervisor` | GET | View: residentes escalados sem um preceptor com titulação de Doutor |
+| `/vw_estatisticas_mensais` | GET | View: total de atendimentos, duração média e procedimentos mais comuns por mês/unidade |
+| `/triggers` | GET | Menu com as triggers disponíveis do banco |
+| `/triggers/auditoria` | GET | Histórico de INSERT/UPDATE/DELETE registrado na tabela `atendimento` |
+| `/triggers/media_procedimentos` | GET | Tempo médio de cada procedimento, recalculado automaticamente por trigger |
+| `/simular-concorrencia` | GET | Simula duas threads tentando escalar o mesmo residente ao mesmo tempo |
 
 ---
 
-> **Banco de Dados I | Projeto Final (Parte 1) | UFPB — CI**  
+> **Banco de Dados I | Projeto Final | UFPB — CI**
+>
 > Professor: Marcelo Iury
-
+>
 > Grupo: Vitória, Antônio Justino, João Victor, Gutemberg
