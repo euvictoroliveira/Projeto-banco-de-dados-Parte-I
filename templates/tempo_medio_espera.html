@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Hospital Dra. Yuska - Tempo médio de espera{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <span class="eyebrow">Procedure</span>
+    <h1>Tempo médio de espera</h1>
+    <p class="page-subtitle">
+        Lista o tempo médio de espera de cada unidade, mas chamando a procedure sp_calcular_tempo_medio_espera antes.
+    </p>
+</div>
+
+<div class="painel">
+
+    {% if unidades %}
+
+    <table class="tabela">
+        <thead>
+            <tr>
+                <th>Unidade</th>
+                <th>Tempo Médio</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for unidade in unidades %}
+            <tr>
+                <td>{{ unidade.nome }}</td>
+                <td>{{ unidade.tempo_media_espera_minutos }}</td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+    {% else %}
+
+        <p>Nenhuma unidade encontrada.</p>
+
+    {% endif %}
+
+</div>
+
+<div style="margin-top:20px;">
+    <a href="/" class="card-botao">
+        <span class="icone">
+            <i class="fa-solid fa-arrow-left"></i>
+        </span>
+        Voltar ao início
+    </a>
+</div>
+
+{% endblock %}

@@ -3,30 +3,50 @@
 #
 
 from flask import Flask, render_template
-from routes.atendimento import listar_atendimentos_bp, novo_atendimento_bp, listar_procedimentos_bp
+from concorrencia import simular_concorrencia
+from database import db
+
+from routes.atendimento import atendimento_bp
 
 from routes.estatisticas import estatisticas_bp
 
-from routes.paciente import atualizar_paciente_bp, listar_pacientes_sem_alto_bp
+from routes.paciente import paciente_bp
 
-from routes.remover_Procedimento import remover_procedimento_bp
+from routes.home import home_bp
+
+from routes.escala import escala_bp
+
+from routes.views import views_bp
+
+from routes.triggers import triggers_bp
+
 
 app = Flask(__name__)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:""@localhost:5432/projeto_hospital'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db.init_app(app)
 
 #
 # Blueprints para outras rotas
 #
-app.register_blueprint(listar_atendimentos_bp)
-app.register_blueprint(novo_atendimento_bp)
-app.register_blueprint(listar_procedimentos_bp)
-app.register_blueprint(atualizar_paciente_bp)
-app.register_blueprint(listar_pacientes_sem_alto_bp)
+app.register_blueprint(escala_bp)
 app.register_blueprint(estatisticas_bp)
-app.register_blueprint(remover_procedimento_bp)
+app.register_blueprint(paciente_bp)
+app.register_blueprint(atendimento_bp)
+app.register_blueprint(home_bp)
+app.register_blueprint(views_bp)
+app.register_blueprint(triggers_bp)
+
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/simular-concorrencia')
+def simular():
+    return simular_concorrencia(app)
 
 if __name__ == '__main__':
     app.run(debug=True)

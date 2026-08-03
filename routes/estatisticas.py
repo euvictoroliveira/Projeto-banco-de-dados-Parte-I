@@ -4,98 +4,147 @@
 
 from flask import Blueprint, render_template, request
 from datetime import date
+from sqlalchemy import select, func, extract, and_, case, cast, Numeric, text
+from sqlalchemy.orm import Session
+from models import Residente, Pessoa, Atendimento, Preceptor, Unidade, Escala, Procedimento, ProcedimentoRealizado, Paciente, Profissional
+from database import db
 import database
 
 #ranking_residentes_bp = Blueprint("ranking_residentes", __name__)
 estatisticas_bp = Blueprint("Estatisticas", __name__)
 
-#@ranking_residentes_bp.route('/ranking_residentes', methods=['POST'])
 def get_ranking_residentes():
-    cursor = database.conexao.cursor()
 
-    consulta = """
-        SELECT p.nome, count(*)
-        FROM residente r
-        INNER JOIN pessoa p ON p.id_pessoa  = r.id_profissional
-        inner join atendimento a on a.id_residente = r.id_profissional
-        group by p.id_pessoa, p.nome 
-        order by count(*) desc
-    """
+    query = db.session.query(
+        Pessoa.nome, 
+        func.count(Atendimento.id_atendimento)   
+    ).join(
+        Residente, Residente.id_profissional == Pessoa.id_pessoa
+    ).outerjoin(
+        Atendimento, Atendimento.id_residente == Residente.id_profissional
+    ).group_by(
+        Pessoa.id_pessoa, Pessoa.nome
+    ).order_by(
+        func.count(Atendimento.id_atendimento).desc())       
 
-    cursor.execute(consulta)
-    ranking = cursor.fetchall()
-    cursor.close()
+    ranking = query.all()
 
     return ranking
 
 # Preceptores que supervisionaram mais de 5 atendimentos em um determinado mês
 def get_preceptores_mais_de_5_atendimentos(ano, mes):
-    cursor = database.conexao.cursor()
+    query = db.session.query(
+        Pessoa.nome,
+        func.count(Atendimento.id_atendimento)
+    ).select_from(Preceptor).join(
+        Pessoa, Pessoa.id_pessoa == Preceptor.id_profissional
+    ).outerjoin(
+        Atendimento, Atendimento.id_preceptor == Preceptor.id_profissional
+    ).filter(
+        extract('year', Atendimento.data_hora) == ano,
+        extract('month', Atendimento.data_hora) == mes
+    ).group_by(
+        Pessoa.id_pessoa, Pessoa.nome
+    ).having(
+        func.count(Atendimento.id_atendimento) > 5
+    ).order_by(
+        func.count(Atendimento.id_atendimento).desc()
+    )
 
-    consulta = """
-        SELECT p.nome, count(*)
-        FROM preceptor pr
-        INNER JOIN pessoa p ON p.id_pessoa = pr.id_profissional
-        INNER JOIN atendimento a ON a.id_preceptor = pr.id_profissional
-        WHERE EXTRACT(YEAR FROM a.data_hora) = %s
-          AND EXTRACT(MONTH FROM a.data_hora) = %s
-        GROUP BY p.id_pessoa, p.nome
-        HAVING count(*) > 5
-        ORDER BY count(*) DESC
-    """
-
-    cursor.execute(consulta, (ano, mes))
-    resultado = cursor.fetchall()
-    cursor.close()
-
-    return resultado
+    return query.all()
 
 # Lista de residentes cadastrados, para popular o dropdown de filtro.
 def get_lista_residentes():
-    cursor = database.conexao.cursor()
-
-    consulta = """
-        SELECT r.id_profissional, p.nome
-        FROM residente r
-        INNER JOIN pessoa p ON p.id_pessoa = r.id_profissional
-        ORDER BY p.nome
-    """
-
-    cursor.execute(consulta)
-    resultado = cursor.fetchall()
-    cursor.close()
-
-    return resultado
+    query = db.session.query(
+        Residente.id_profissional, 
+        Pessoa.nome
+    ).join(
+        Pessoa, Pessoa.id_pessoa == Residente.id_profissional
+    ).order_by(
+        Pessoa.nome
+    )
+    
+    return query.all()
 
 # Quantidade de plantões escalados por unidade, em um mês/ano.
 # Se id_residente for informado, filtra apenas os plantões daquele residente;
 # caso contrário, soma os plantões de todos os residentes.
-def get_plantoes_por_unidade(ano, mes, id_residente=None):
-    cursor = database.conexao.cursor()
+def get_plantoes_por_unidade(id_residente=None):
+    # Cria uma lista base de condições para o LEFT JOIN (outerjoin)
+    condicoes_join = [
+        Unidade.id_unidade == Escala.id_unidade,
+    ]
 
-    consulta = """
-        SELECT u.nome, count(*)
-        FROM escala e
-        INNER JOIN unidade u ON u.id_unidade = e.id_unidade
-        WHERE e.mes_plantao = %s
-          AND e.ano_plantao = %s
-    """
-    parametros = [mes, ano]
-
+    # Adiciona a condição do residente, se ele foi selecionado
     if id_residente:
-        consulta += " AND e.id_residente = %s"
-        parametros.append(id_residente)
+        condicoes_join.append(Escala.id_residente == id_residente)
 
-    consulta += """
-        GROUP BY u.id_unidade, u.nome
-        ORDER BY u.nome
-    """
+    query = db.session.query(
+        Unidade.nome, 
+        func.count(Escala.id_escala) * 4
+    ).outerjoin(
+        # Aplica todas as condições do JOIN juntas
+        Escala, and_(*condicoes_join) 
+    ).group_by(
+        Unidade.id_unidade, Unidade.nome
+    ).order_by(
+        Unidade.nome
+    )
+    
+    return query.all()
 
-    cursor.execute(consulta, tuple(parametros))
-    resultado = cursor.fetchall()
-    cursor.close()
+# percentual de procedimentos de alto risco realizados por cada residente
+def get_percentual_alto_risco_por_residente():
+    # Total de procedimentos realizados pelo residente
+    # se o residente não tem nenhum procedimento, vira 0
+    total_procedimentos = func.coalesce(
+        func.sum(ProcedimentoRealizado.quantidade), 0
+    )
 
-    return resultado
+    # Total de procedimentos de risco alto
+    procedimentos_alto_risco = func.coalesce(
+        func.sum(
+            case(
+                (Procedimento.nivel_risco == 'ALTO', ProcedimentoRealizado.quantidade),
+                else_=0
+            )
+        ), 0
+    )
+
+    # NULLIF evita divisão por zero.
+    # COALESCE por fora transforma o resultado nulo (quando o residente não tem nenhum
+    # procedimento) em 0%, em vez de deixar como "sem dado".
+    percentual_alto_risco = func.coalesce(
+        func.round(
+            cast(procedimentos_alto_risco, Numeric) * 100 /
+            cast(func.nullif(total_procedimentos, 0), Numeric),
+            2
+        ), 0
+    )
+
+    query = db.session.query(
+        Pessoa.nome,
+        total_procedimentos.label('total_procedimentos'),
+        percentual_alto_risco.label('percentual_alto_risco')
+    ).select_from(Residente).outerjoin(
+        Atendimento, Atendimento.id_residente == Residente.id_profissional
+    ).outerjoin(
+        ProcedimentoRealizado,
+        and_(
+            ProcedimentoRealizado.id_atendimento == Atendimento.id_atendimento,
+            ProcedimentoRealizado.is_removido == False
+        )
+    ).outerjoin(
+        Procedimento, Procedimento.id_procedimento == ProcedimentoRealizado.id_procedimento
+    ).outerjoin(
+        Pessoa, Pessoa.id_pessoa == Residente.id_profissional
+    ).group_by(
+        Pessoa.id_pessoa, Pessoa.nome
+    ).order_by(
+        Pessoa.nome
+    )
+
+    return query.all()
 
 @estatisticas_bp.route('/estatisticas', methods=['GET'])
 def estatisticas():
@@ -117,24 +166,15 @@ def estatisticas():
 
     preceptores = get_preceptores_mais_de_5_atendimentos(ano, mes)
 
-    # Filtros próprios da seção de plantões (mês/ano + residente),
-    # independentes do filtro de preceptores acima.
-    mes_plantoes_raw = request.args.get('mes_plantoes')
-
-    try:
-        ano_plantoes, mes_plantoes = mes_plantoes_raw.split('-')
-        ano_plantoes, mes_plantoes = int(ano_plantoes), int(mes_plantoes)
-    except (AttributeError, ValueError):
-        hoje = date.today()
-        ano_plantoes, mes_plantoes = hoje.year, hoje.month
-
-    mes_plantoes_selecionado = f"{ano_plantoes:04d}-{mes_plantoes:02d}"
-
     id_residente_raw = request.args.get('id_residente')
     id_residente_selecionado = int(id_residente_raw) if id_residente_raw and id_residente_raw.isdigit() else None
 
     lista_residentes = get_lista_residentes()
-    plantoes_por_unidade = get_plantoes_por_unidade(ano_plantoes, mes_plantoes, id_residente_selecionado)
+    plantoes_por_unidade = get_plantoes_por_unidade(id_residente_selecionado)
+    percentual_alto_risco = get_percentual_alto_risco_por_residente()
+
+
+    tempo_medio_espera = get_tempo_medio_espera()
 
     return render_template(
         'estatisticas.html',
@@ -142,36 +182,106 @@ def estatisticas():
         preceptores_mais_de_5=preceptores,
         mes_selecionado=mes_selecionado,
         plantoes_por_unidade=plantoes_por_unidade,
-        mes_plantoes_selecionado=mes_plantoes_selecionado,
         lista_residentes=lista_residentes,
-        id_residente_selecionado=id_residente_selecionado
+        id_residente_selecionado=id_residente_selecionado,
+        percentual_alto_risco=percentual_alto_risco,
+        lista_tempo_medio_espera = tempo_medio_espera
     )
+
+#
+# Método para pegar a lista de tempo médio de espera de cada unidade
+# Também realiza uma atualização antes de pegar o valor
+#
+def get_tempo_medio_espera():
+
+    try:
+        db.session.execute(text("CALL sp_calcular_tempo_medio_espera()"))
+
+        db.session.commit()
+
+        consulta = db.session.query(Unidade.nome, Unidade.tempo_medio_espera_minutos)
+
+        return consulta.all()
+
+    except Exception as e:
+        db.session.rollback()
+
 
 # Tempo médio de duração dos atendimentos por residente
 @estatisticas_bp.route("/tempo_medio_residentes", methods=["GET"])
 def tempo_medio_residentes():
 
-    cursor = database.conexao.cursor()
+    query = db.session.query(
+        Pessoa.nome,
+        func.coalesce(func.round(func.avg(Atendimento.duracao_minutos), 2), 0).label('tempo_medio')
+    ).select_from(Residente).outerjoin(
+        Atendimento, Atendimento.id_residente == Residente.id_profissional
+    ).outerjoin(
+        Pessoa, Pessoa.id_pessoa == Residente.id_profissional
+    ).group_by(
+        Pessoa.id_pessoa, Pessoa.nome
+    ).order_by(
+        Pessoa.nome
+    )
 
-    consulta = """
-        SELECT
-            p.nome,
-            ROUND(AVG(a.duracao_minutos), 2) AS tempo_medio
-        FROM atendimento a
-        INNER JOIN residente r
-            ON r.id_profissional = a.id_residente
-        INNER JOIN profissional prof
-            ON prof.id_pessoa = r.id_profissional
-        INNER JOIN pessoa p
-            ON p.id_pessoa = prof.id_pessoa
-        GROUP BY p.nome
-        ORDER BY p.nome;
-    """
-
-    cursor.execute(consulta)
-
-    residentes = cursor.fetchall()
-
-    cursor.close()
+    residentes = query.all()
 
     return render_template("tempo_medio_residentes.html", residentes=residentes)
+
+# Implementa consulta avançada de preceptores flamenguistas
+@estatisticas_bp.route('/preceptores_flamengo')
+def listar_preceptores_flamengo():
+
+    pessoa_preceptor = Pessoa.__table__.alias("pessoa_preceptor")
+
+    preceptores = (
+        db.session.query(
+            pessoa_preceptor.c.nome.label("preceptor"),
+            Profissional.crm,
+            Preceptor.titulacao
+        )
+
+        .select_from(Atendimento)
+
+        .join(
+            Paciente,
+            Atendimento.id_paciente == Paciente.id_pessoa
+        )
+
+        .join(
+            Pessoa,
+            Pessoa.id_pessoa == Paciente.id_pessoa
+        )
+
+        .join(
+            Preceptor,
+            Atendimento.id_preceptor == Preceptor.id_profissional
+        )
+
+        .join(
+            Profissional,
+            Preceptor.id_profissional == Profissional.id_pessoa
+        )
+
+        .join(
+            pessoa_preceptor,
+            Profissional.id_pessoa == pessoa_preceptor.c.id_pessoa
+        )
+
+        .filter(
+            Pessoa.is_flamengo == True
+        )
+
+        .distinct()
+
+        .order_by(
+            pessoa_preceptor.c.nome
+        )
+
+        .all()
+    )
+
+    return render_template(
+        "preceptores_flamengo.html",
+        preceptores=preceptores
+    )

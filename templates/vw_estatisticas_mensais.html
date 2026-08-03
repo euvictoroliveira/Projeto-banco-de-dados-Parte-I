@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Estatísticas Mensais{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <span class="eyebrow">Views</span>
+    <h1>Estatísticas Mensais de Atendimentos</h1>
+    <p class="page-subtitle">
+        Resumo mensal de atendimentos por unidade, incluindo duração média e procedimentos mais frequentes.
+    </p>
+</div>
+
+<div class="painel">
+
+    {% if estatisticas %}
+
+    <table class="tabela">
+        <thead>
+            <tr>
+                <th>Mês</th>
+                <th>ID Unidade</th>
+                <th>Unidade</th>
+                <th>Total de Atendimentos</th>
+                <th>Duração Média (min)</th>
+                <th>Procedimentos Mais Comuns</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for e in estatisticas %}
+
+            <tr>
+                <td>{{ e.mes.strftime("%m/%Y") }}</td>
+                <td>{{ e.id_unidade }}</td>
+                <td>{{ e.unidade }}</td>
+                <td>{{ e.total_atendimentos }}</td>
+                <td>{{ e.media_duracao }}</td>
+                <td>{{ e.procedimentos_mais_comuns }}</td>
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+    {% else %}
+
+        <p>Nenhuma estatística encontrada.</p>
+
+    {% endif %}
+
+</div>
+
+<div style="margin-top:25px;">
+    <a href="/views" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-left"></i>
+        Voltar
+    </a>
+</div>
+
+{% endblock %}

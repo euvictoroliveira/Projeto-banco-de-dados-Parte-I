@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Hospital Dra. Yuska - Escala{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <span class="eyebrow">Procedure</span>
+    <h1>Escala</h1>
+    <p class="page-subtitle">
+        Reajustar escalas.
+    </p>
+</div>
+
+<div class="painel">
+
+    {% if feedback %}
+        <div class="feedback-msg" style="margin-bottom: 15px; font-weight: bold;">
+            {{ feedback }}
+        </div>
+    {% endif %}
+
+    {% if lista_escala %}
+
+    <table class="tabela">
+        <thead>
+            <tr>
+                <th>Residente</th>
+                <th>Data Atual</th>
+                <th>Turno Atual</th>
+                <th>Preceptor</th>
+                <th>Unidade</th>
+                <th>Reajustar Escala</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for escala in lista_escala %}
+            <tr>
+
+                <td>{{ escala.nome_residente }}</td>
+                <td>{{ escala.dia_semana }}</td>
+                <td>{{ escala.turno }}</td>
+                <td>{{ escala.nome_preceptor }}</td>
+                <td>{{ escala.nome_unidade }}</td>
+                
+                <td>
+                    <form action="/escala" method="POST" style="display: flex; gap: 5px; align-items: center;">
+                        
+                        <input type="hidden" name="acao" value="atualizar">
+                        <input type="hidden" name="id_residente" value="{{ escala.id_residente }}">
+                        <input type="hidden" name="dia_atual" value="{{ escala.dia_semana }}">
+                        <input type="hidden" name="turno_atual" value="{{ escala.turno }}">
+                        
+                        <select name="dia_novo" required>
+                            <option value="" disabled selected>Novo Dia...</option>
+                            <option value="Segunda">Segunda</option>
+                            <option value="Terça">Terça</option>
+                            <option value="Quarta">Quarta</option>
+                            <option value="Quinta">Quinta</option>
+                            <option value="Sexta">Sexta</option>
+                        </select>
+
+                        <select name="turno_novo" required>
+                            <option value="" disabled selected>Turno...</option>
+                            <option value="Manhã">Manhã</option>
+                            <option value="Tarde">Tarde</option>
+                            <option value="Noite">Noite</option>
+                        </select>
+
+                        <button type="submit" style="padding: 5px 10px; cursor: pointer;">Salvar</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+    {% else %}
+        <p>Nenhuma escala encontrada.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Hospital Dra. Yuska - Views{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <span class="eyebrow">Banco de Dados</span>
+    <h1>Views do Sistema</h1>
+    <p class="page-subtitle">
+        Consultas pré-definidas implementadas como Views no PostgreSQL.
+    </p>
+</div>
+
+<div class="grid-menu">
+
+    <a href="/vw_pacientes_internados" class="card-botao">
+        <span class="icone">
+            <i class="fa-solid fa-bed-pulse"></i>
+        </span>
+        Pacientes Internados
+    </a>
+
+    <a href="/vw_residentes_sem_supervisor" class="card-botao">
+        <span class="icone">
+            <i class="fa-solid fa-user-doctor"></i>
+        </span>
+        Residentes sem Supervisor
+    </a>
+
+    <a href="/vw_estatisticas_mensais" class="card-botao">
+        <span class="icone">
+            <i class="fa-solid fa-chart-column"></i>
+        </span>
+        Estatísticas Mensais
+    </a>
+
+</div>
+
+<div style="margin-top:30px;">
+    <a href="/" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-left"></i>
+        Voltar ao Início
+    </a>
+</div>
+
+{% endblock %}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hospital Dra. Yuska{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-hospital-user logo-icon"></i>
+            <span class="logo-text">Hosp. Dra. Yuska</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}">
+                <i class="fa-solid fa-house"></i>
+                <span class="link-text">Início</span>
+            </a>
+            <a href="/atendimento" class="nav-item {% if request.path == '/atendimento' %}active{% endif %}">
+                <i class="fa-solid fa-square-plus"></i>
+                <span class="link-text">Atendimento</span>
+            </a>
+            <a href="/paciente" class="nav-item {% if request.path == '/atualizar_paciente' %}active{% endif %}">
+                <i class="fa-solid fa-user-pen"></i>
+                <span class="link-text">Paciente</span>
+            </a>
+            <a href="/escala" class="nav-item {% if request.path == '/escala' %}active{% endif %}">
+                <i class="fa-solid fa-chart-line"></i>
+                <span class="link-text">Escala</span>
+            </a>
+            <a href="/tempo_medio_residentes" class="nav-item {% if request.path == '/tempo_medio_residentes' %}active{% endif %}">
+                <i class="fa-solid fa-user-clock"></i>
+                <span class="link-text">Tempo Médio Residentes</span>
+            </a>
+            <a href="/preceptores_flamengo" class="nav-item {% if request.path == '/preceptores_flamengo' %}active{% endif %}">
+                <i class="fa-solid fa-user-clock"></i>
+                <span class="link-text">Preceptores Flamengo</span>
+            </a>
+            <a href="/estatisticas" class="nav-item {% if request.path == '/estatisticas' %}active{% endif %}">
+                <i class="fa-solid fa-chart-line"></i>
+                <span class="link-text">Estatísticas</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+</body>
+</html>

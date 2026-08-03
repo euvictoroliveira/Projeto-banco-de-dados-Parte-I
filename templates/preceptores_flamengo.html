@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Hospital Dra. Yuska - Preceptores de Pacientes Flamenguistas{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <span class="eyebrow">Consulta Avançada</span>
+    <h1>Preceptores que supervisionaram pacientes flamenguistas</h1>
+    <p class="page-subtitle">
+        Lista de preceptores que supervisionaram residentes responsáveis por
+        atendimentos de pacientes com <strong>is_flamengo = TRUE</strong>.
+    </p>
+</div>
+
+<div class="painel">
+
+    {% if preceptores %}
+
+    <table class="tabela">
+        <thead>
+            <tr>
+                <th>Preceptor</th>
+                <th>CRM</th>
+                <th>Titulação</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for preceptor in preceptores %}
+            <tr>
+                <td>{{ preceptor.preceptor }}</td>
+                <td>{{ preceptor.crm }}</td>
+                <td>{{ preceptor.titulacao }}</td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+    {% else %}
+
+        <p>Nenhum preceptor encontrado.</p>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
