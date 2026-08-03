@@ -11,8 +11,8 @@ DROP TABLE IF EXISTS paciente CASCADE;
 DROP TABLE IF EXISTS pessoa CASCADE;
 drop table if exists alergia CASCADE;
 drop table if exists paciente_tem_alergia CASCADE;
-drop table if exists internacao cascade;
-drop table if exists auditoria_atendimento cascade;
+drop table if exists internacao CASCADE;
+drop table if exists auditoria_atendimento CASCADE;
 
 -- Cria a tabela pessoa
 -- Atributos: ID(chave primária), nome, cpf, data de nascimento, is_flamengo, telefone e endereço
@@ -43,7 +43,7 @@ CREATE TABLE paciente (
 CREATE TABLE alergia (
     id_alergia SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL UNIQUE,
-    gravidade VARCHAR(20) not NULL
+    gravidade VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE paciente_tem_alergia (
@@ -104,7 +104,7 @@ CREATE TABLE atendimento (
     id_paciente INTEGER NOT NULL,
     id_residente INTEGER NOT NULL,
     id_preceptor INTEGER NOT NULL,
-    id_unidade INTEGER not NULL
+    id_unidade INTEGER NOT NULL
 );
 
 -- Cria a tabela de auditoria de atendimentos
@@ -146,11 +146,11 @@ CREATE TABLE procedimento_realizado (
 
 -- Cria a tabela para internação
 create table internacao (
-	id_internacao SERIAL primary key,
-	id_paciente INTEGER not null,
-	id_unidade INTEGER not null,
-	data_hora_entrada TIMESTAMP not null default NOW(),
-	data_hora_saida TIMESTAMP default NULL
+	id_internacao SERIAL PRIMARY KEY,
+	id_paciente INTEGER NOT NULL,
+	id_unidade INTEGER NOT NULL,
+	data_hora_entrada TIMESTAMP NOT NULL DEFAULT NOW(),
+	data_hora_saida TIMESTAMP DEFAULT NULL
 );
 
 
