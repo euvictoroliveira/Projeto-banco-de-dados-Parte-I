@@ -3,6 +3,7 @@
 #
 
 from flask import Flask, render_template
+from concorrencia import simular_concorrencia
 from database import db
 
 from routes.atendimento import atendimento_bp
@@ -20,6 +21,7 @@ from routes.escala import escala_bp
 from routes.views import views_bp
 
 from routes.triggers import triggers_bp
+
 
 app = Flask(__name__)
 
@@ -43,6 +45,10 @@ app.register_blueprint(triggers_bp)
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/simular-concorrencia')
+def simular():
+    return simular_concorrencia(app)
 
 if __name__ == '__main__':
     app.run(debug=True)

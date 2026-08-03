@@ -11,7 +11,7 @@ escala_bp = Blueprint("escala", __name__)
 def escala():
 
     feedback = None
-    
+
     if request.method == 'POST':
         feedback = atualizar_escala()
 
