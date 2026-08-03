@@ -4,10 +4,11 @@
 
 from flask import Blueprint, render_template, request
 from include.verify import validar_cpf, validar_crm
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, text
 from sqlalchemy.orm import aliased
 from models import *
 import database
+import json
 import time
 
 atendimento_bp = Blueprint("atendimento", __name__)

@@ -10,6 +10,8 @@ escala_bp = Blueprint("escala", __name__)
 @escala_bp.route('/escala', methods=['GET','POST'])
 def escala():
 
+    feedback = None
+    
     if request.method == 'POST':
         feedback = atualizar_escala()
 
