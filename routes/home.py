@@ -5,45 +5,44 @@
 
 from flask import Blueprint, render_template
 from routes.estatisticas import get_ranking_residentes
+from sqlalchemy import func, extract
+from datetime import date
+from models import Paciente, Atendimento, ProcedimentoRealizado
+from routes.estatisticas import get_ranking_residentes
 import database
 
 home_bp = Blueprint("home", __name__)
 
 
 def contar_pacientes():
-    cursor = database.conexao.cursor()
-    cursor.execute("SELECT COUNT(*) FROM paciente")
-    total = cursor.fetchone()[0]
-    cursor.close()
-    return total
-
+   return database.db.session.query(
+       func.count(Paciente.id_pessoa)
+   ).scalar()
 
 def contar_atendimentos():
-    cursor = database.conexao.cursor()
-    cursor.execute("SELECT COUNT(*) FROM atendimento")
-    total = cursor.fetchone()[0]
-    cursor.close()
-    return total
-
+   return database.db.session.query(
+       func.count(Atendimento.id_atendimento)
+   ).scalar()
 
 def contar_atendimentos_mes_atual():
-    cursor = database.conexao.cursor()
-    cursor.execute("""
-        SELECT COUNT(*) FROM atendimento
-        WHERE EXTRACT(YEAR FROM data_hora) = EXTRACT(YEAR FROM CURRENT_DATE)
-          AND EXTRACT(MONTH FROM data_hora) = EXTRACT(MONTH FROM CURRENT_DATE)
-    """)
-    total = cursor.fetchone()[0]
-    cursor.close()
-    return total
+   hoje = date.today()
+
+   return database.db.session.query(
+        func.count(Atendimento.id_atendimento)
+    ).filter(
+        extract('year', Atendimento.data_hora) == hoje.year,
+        extract('month', Atendimento.data_hora) == hoje.month
+    ).scalar()
 
 
 def contar_procedimentos_realizados():
-    cursor = database.conexao.cursor()
-    cursor.execute("SELECT COUNT(*) FROM procedimento_realizado WHERE is_removido = FALSE")
-    total = cursor.fetchone()[0]
-    cursor.close()
-    return total
+    return database.db.session.query(
+       func.count()
+    ).select_from(
+       ProcedimentoRealizado
+    ).filter(
+       ProcedimentoRealizado.is_removido == False
+    ).scalar()
 
 
 @home_bp.route('/', methods=['GET'])

@@ -13,7 +13,9 @@ from routes.remover_Procedimento import remover_procedimento_bp
 
 from routes.paciente import paciente_bp
 
-from routes.Home import home_bp
+from routes.home import home_bp
+
+from routes.escala import escala_bp
 
 from routes.views import views_bp
 
@@ -27,6 +29,7 @@ db.init_app(app)
 #
 # Blueprints para outras rotas
 #
+app.register_blueprint(escala_bp)
 app.register_blueprint(estatisticas_bp)
 app.register_blueprint(paciente_bp)
 app.register_blueprint(atendimento_bp)

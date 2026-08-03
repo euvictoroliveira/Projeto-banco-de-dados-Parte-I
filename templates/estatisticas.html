@@ -57,15 +57,11 @@
 </div>
 
 <div class="painel">
-    <h2>Plantões escalados por unidade, no mês</h2>
+    <h2>Plantões escalados por unidade, no mês corrente</h2>
 
     <div class="form-caixa">
         <form action="/estatisticas" method="GET">
             <div class="linha-campos">
-                <div>
-                    <label for="mes_plantoes">Mês de referência:</label>
-                    <input type="month" id="mes_plantoes" name="mes_plantoes" value="{{ mes_plantoes_selecionado }}">
-                </div>
                 <div>
                     <label for="id_residente">Residente:</label>
                     <select id="id_residente" name="id_residente">

@@ -27,6 +27,10 @@
                 <i class="fa-solid fa-user-pen"></i>
                 <span class="link-text">Paciente</span>
             </a>
+            <a href="/escala" class="nav-item {% if request.path == '/escala' %}active{% endif %}">
+                <i class="fa-solid fa-chart-line"></i>
+                <span class="link-text">Escala</span>
+            </a>
             <a href="/tempo_medio_residentes" class="nav-item {% if request.path == '/tempo_medio_residentes' %}active{% endif %}">
                 <i class="fa-solid fa-user-clock"></i>
                 <span class="link-text">Tempo Médio Residentes</span>
